@@ -26,6 +26,12 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::put('/admin/annees/{anneeAcademique}', [App\Http\Controllers\Admin\AnneeAcademiqueController::class, 'update'])->name('admin.annees.update');
     Route::patch('/admin/annees/{anneeAcademique}/status', [App\Http\Controllers\Admin\AnneeAcademiqueController::class, 'toggleStatus'])->name('admin.annees.status');
     Route::delete('/admin/annees/{anneeAcademique}', [App\Http\Controllers\Admin\AnneeAcademiqueController::class, 'destroy'])->name('admin.annees.destroy');
+
+    // Séries
+    Route::get('/admin/series', [App\Http\Controllers\Admin\SerieController::class, 'index'])->name('admin.series.index');
+    Route::post('/admin/series', [App\Http\Controllers\Admin\SerieController::class, 'store'])->name('admin.series.store');
+    Route::put('/admin/series/{serie}', [App\Http\Controllers\Admin\SerieController::class, 'update'])->name('admin.series.update');
+    Route::delete('/admin/series/{serie}', [App\Http\Controllers\Admin\SerieController::class, 'destroy'])->name('admin.series.destroy');
 });
 
 
