@@ -115,6 +115,8 @@
         @yield('styles')
     </style>
 </head>
+
+
 <body class="bg-background-light text-slate-900 min-h-screen">
 
 <div id="overlay"></div>
@@ -252,7 +254,7 @@
         </div>
     </header>
 
-    <div class="p-4 md:p-6 lg:p-8 space-y-6">
+    <div class="p-4 md:p-6 lg:p-8 space-y-6 min-h-[calc(100vh-3.5rem-57px)]">
         @yield('content')
     </div>
 

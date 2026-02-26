@@ -20,9 +20,12 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
     
-    Route::get('/admin/annees', function () {
-        return view('admin.annees');
-    })->name('admin.annees.index');
+    // Années académiques
+    Route::get('/admin/annees', [App\Http\Controllers\Admin\AnneeAcademiqueController::class, 'index'])->name('admin.annees.index');
+    Route::post('/admin/annees', [App\Http\Controllers\Admin\AnneeAcademiqueController::class, 'store'])->name('admin.annees.store');
+    Route::put('/admin/annees/{anneeAcademique}', [App\Http\Controllers\Admin\AnneeAcademiqueController::class, 'update'])->name('admin.annees.update');
+    Route::patch('/admin/annees/{anneeAcademique}/status', [App\Http\Controllers\Admin\AnneeAcademiqueController::class, 'toggleStatus'])->name('admin.annees.status');
+    Route::delete('/admin/annees/{anneeAcademique}', [App\Http\Controllers\Admin\AnneeAcademiqueController::class, 'destroy'])->name('admin.annees.destroy');
 });
 
 
