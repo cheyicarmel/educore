@@ -124,16 +124,22 @@
 
     <div class="p-4 border-t border-slate-100 shrink-0">
         <div class="flex items-center gap-3 p-2">
-            <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">AK</div>
+            <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
+                {{ strtoupper(substr(Auth::user()->prenom, 0, 1)) }}{{ strtoupper(substr(Auth::user()->nom, 0, 1)) }}
+            </div>
             <div class="user-info min-w-0">
-                <p class="text-sm font-semibold truncate">Afi Koffi</p>
-                <p class="text-xs text-navy-700 truncate">Enseignant</p>
+                <p class="text-sm font-semibold truncate">{{ Auth::user()->prenom }} {{ Auth::user()->nom }}</p>
+                <p class="text-xs text-navy-700 truncate">{{ ucfirst(Auth::user()->role) }}</p>
             </div>
         </div>
-        <button class="logout-btn w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors">
-            <span class="material-symbols-outlined text-base shrink-0">logout</span>
-            <span class="logout-text">Déconnexion</span>
-        </button>
+        
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button class="logout-btn w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors">
+                <span class="material-symbols-outlined text-base shrink-0">logout</span>
+                <span class="logout-text">Déconnexion</span>
+            </button>
+        </form>
     </div>
 </aside>
 

@@ -110,7 +110,8 @@
                         <p class="text-slate-500 dark:text-slate-400 font-normal text-sm sm:text-base">Accédez à votre espace sécurisé EduCore</p>
                     </header>
 
-                    <form class="space-y-5">
+                    <form class="space-y-5" method="POST" action="{{ route('login.post') }}">
+                        @csrf
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" for="email">Adresse e-mail</label>
                             <div class="relative">
@@ -137,6 +138,16 @@
                         <button class="w-full flex justify-center py-3.5 px-6 border border-transparent rounded-lg shadow-sm text-sm sm:text-base font-bold text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200" type="submit">
                             Se connecter
                         </button>
+
+                        @if ($errors->any())
+                            <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p class="text-sm font-medium text-red-600 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-base">error</span>
+                                    {{ $errors->first('email') }}
+                                </p>
+                            </div>
+                        @endif
+
                     </form>
 
                     <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
