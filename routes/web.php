@@ -34,9 +34,10 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::delete('/admin/series/{serie}', [App\Http\Controllers\Admin\SerieController::class, 'destroy'])->name('admin.series.destroy');
 
     // Classes
-    Route::get('/admin/classes', function(){
-        return view('admin.classes');
-    })->name('admin.classes.index');
+    Route::get('/admin/classes', [App\Http\Controllers\Admin\ClasseController::class, 'index'])->name('admin.classes.index');
+    Route::post('/admin/classes', [App\Http\Controllers\Admin\ClasseController::class, 'store'])->name('admin.classes.store');
+    Route::put('/admin/classes/{classe}', [App\Http\Controllers\Admin\ClasseController::class, 'update'])->name('admin.classes.update');
+    Route::delete('/admin/classes/{classe}', [App\Http\Controllers\Admin\ClasseController::class, 'destroy'])->name('admin.classes.destroy');
 });
 
 
