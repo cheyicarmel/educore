@@ -143,8 +143,8 @@
             <span class="lbl">Années Académiques</span>
             <span class="tip">Années Académiques</span>
         </a>
-        <a href="#"
-           class="nav-link text-navy-700 hover:bg-slate-50 flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
+        <a href="{{ route('admin.classes.index') }}"
+           class="nav-link {{ request()->routeIs('admin.classes.index') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
             <span class="material-symbols-outlined shrink-0">groups</span>
             <span class="lbl">Classes</span>
             <span class="tip">Classes</span>

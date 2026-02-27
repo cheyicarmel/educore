@@ -32,6 +32,11 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::post('/admin/series', [App\Http\Controllers\Admin\SerieController::class, 'store'])->name('admin.series.store');
     Route::put('/admin/series/{serie}', [App\Http\Controllers\Admin\SerieController::class, 'update'])->name('admin.series.update');
     Route::delete('/admin/series/{serie}', [App\Http\Controllers\Admin\SerieController::class, 'destroy'])->name('admin.series.destroy');
+
+    // Classes
+    Route::get('/admin/classes', function(){
+        return view('admin.classes');
+    })->name('admin.classes.index');
 });
 
 
