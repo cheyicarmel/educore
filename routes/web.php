@@ -44,6 +44,13 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::post('/admin/matieres', [App\Http\Controllers\Admin\MatiereController::class, 'store'])->name('admin.matieres.store');
     Route::put('/admin/matieres/{matiere}', [App\Http\Controllers\Admin\MatiereController::class, 'update'])->name('admin.matieres.update');
     Route::delete('/admin/matieres/{matiere}', [App\Http\Controllers\Admin\MatiereController::class, 'destroy'])->name('admin.matieres.destroy');
+
+    // Enseignants
+    Route::get('/admin/enseignants', [App\Http\Controllers\Admin\EnseignantController::class, 'index'])->name('admin.enseignants.index');
+    Route::post('/admin/enseignants', [App\Http\Controllers\Admin\EnseignantController::class, 'store'])->name('admin.enseignants.store');
+    Route::put('/admin/enseignants/{enseignant}', [App\Http\Controllers\Admin\EnseignantController::class, 'update'])->name('admin.enseignants.update');
+    Route::patch('/admin/enseignants/{enseignant}/toggle', [App\Http\Controllers\Admin\EnseignantController::class, 'toggleStatus'])->name('admin.enseignants.toggle');
+    Route::delete('/admin/enseignants/{enseignant}', [App\Http\Controllers\Admin\EnseignantController::class, 'destroy'])->name('admin.enseignants.destroy');
 });
 
 
