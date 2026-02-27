@@ -12,18 +12,45 @@ class AnneeAcademique extends Model
         'libelle',
         'date_debut',
         'date_fin',
-        'est_active',
+        'statut',
     ];
 
     protected $casts = [
         'date_debut' => 'date',
         'date_fin'   => 'date',
-        'est_active' => 'boolean',
     ];
 
-    // Scope pour récupérer l'année active facilement
+    // Scope année active
     public function scopeActive($query)
     {
-        return $query->where('est_active', true);
+        return $query->where('statut', 'active');
+    }
+
+    // Scope années terminées
+    public function scopeTerminee($query)
+    {
+        return $query->where('statut', 'terminee');
+    }
+
+    // Scope années à venir
+    public function scopeAVenir($query)
+    {
+        return $query->where('statut', 'a_venir');
+    }
+
+    // Helpers
+    public function estActive(): bool
+    {
+        return $this->statut === 'active';
+    }
+
+    public function estTerminee(): bool
+    {
+        return $this->statut === 'terminee';
+    }
+
+    public function estAVenir(): bool
+    {
+        return $this->statut === 'a_venir';
     }
 }
