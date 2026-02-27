@@ -38,6 +38,12 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::post('/admin/classes', [App\Http\Controllers\Admin\ClasseController::class, 'store'])->name('admin.classes.store');
     Route::put('/admin/classes/{classe}', [App\Http\Controllers\Admin\ClasseController::class, 'update'])->name('admin.classes.update');
     Route::delete('/admin/classes/{classe}', [App\Http\Controllers\Admin\ClasseController::class, 'destroy'])->name('admin.classes.destroy');
+
+    // Matières
+    Route::get('/admin/matieres', [App\Http\Controllers\Admin\MatiereController::class, 'index'])->name('admin.matieres.index');
+    Route::post('/admin/matieres', [App\Http\Controllers\Admin\MatiereController::class, 'store'])->name('admin.matieres.store');
+    Route::put('/admin/matieres/{matiere}', [App\Http\Controllers\Admin\MatiereController::class, 'update'])->name('admin.matieres.update');
+    Route::delete('/admin/matieres/{matiere}', [App\Http\Controllers\Admin\MatiereController::class, 'destroy'])->name('admin.matieres.destroy');
 });
 
 
