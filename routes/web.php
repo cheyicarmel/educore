@@ -66,6 +66,13 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
 
     // Finances
     Route::get('/admin/finances', [App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('admin.finances.index');
+
+    // Administrateurs
+    Route::get('/admin/administrateurs', [App\Http\Controllers\Admin\AdministrateurController::class, 'index'])->name('admin.administrateurs.index');
+    Route::post('/admin/administrateurs', [App\Http\Controllers\Admin\AdministrateurController::class, 'store'])->name('admin.administrateurs.store');
+    Route::put('/admin/administrateurs/{user}', [App\Http\Controllers\Admin\AdministrateurController::class, 'update'])->name('admin.administrateurs.update');
+    Route::patch('/admin/administrateurs/{user}/toggle', [App\Http\Controllers\Admin\AdministrateurController::class, 'toggleStatus'])->name('admin.administrateurs.toggle');
+    Route::delete('/admin/administrateurs/{user}', [App\Http\Controllers\Admin\AdministrateurController::class, 'destroy'])->name('admin.administrateurs.destroy');
 });
 
 
