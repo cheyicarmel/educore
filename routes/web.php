@@ -44,6 +44,7 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::post('/admin/matieres', [App\Http\Controllers\Admin\MatiereController::class, 'store'])->name('admin.matieres.store');
     Route::put('/admin/matieres/{matiere}', [App\Http\Controllers\Admin\MatiereController::class, 'update'])->name('admin.matieres.update');
     Route::delete('/admin/matieres/{matiere}', [App\Http\Controllers\Admin\MatiereController::class, 'destroy'])->name('admin.matieres.destroy');
+    Route::post('/admin/matieres/{matiere}/coefficients', [App\Http\Controllers\Admin\MatiereController::class, 'updateCoefficients'])->name('admin.matieres.coefficients');
 
     // Enseignants
     Route::get('/admin/enseignants', [App\Http\Controllers\Admin\EnseignantController::class, 'index'])->name('admin.enseignants.index');
