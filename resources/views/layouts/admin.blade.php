@@ -173,6 +173,12 @@
             <span class="lbl">Élèves</span>
             <span class="tip">Élèves</span>
         </a>
+        <a href="{{ route('admin.attributions.index') }}"
+            class="nav-link {{ request()->routeIs('admin.attributions.index') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
+            <span class="material-symbols-outlined shrink-0">school</span>
+            <span class="lbl">Attributions</span>
+            <span class="tip">Attributions</span>
+        </a>
         <a href="#"
            class="nav-link text-navy-700 hover:bg-slate-50 flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
             <span class="material-symbols-outlined shrink-0">payments</span>

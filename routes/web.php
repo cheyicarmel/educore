@@ -57,6 +57,11 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::post('/admin/eleves', [App\Http\Controllers\Admin\EleveController::class, 'store'])->name('admin.eleves.store');
     Route::put('/admin/eleves/{eleve}', [App\Http\Controllers\Admin\EleveController::class, 'update'])->name('admin.eleves.update');
     Route::delete('/admin/eleves/{eleve}', [App\Http\Controllers\Admin\EleveController::class, 'destroy'])->name('admin.eleves.destroy');
+
+    // Attributions
+    Route::get('/admin/attributions', [App\Http\Controllers\Admin\AttributionController::class, 'index'])->name('admin.attributions.index');
+    Route::post('/admin/attributions', [App\Http\Controllers\Admin\AttributionController::class, 'store'])->name('admin.attributions.store');
+    Route::delete('/admin/attributions/{attribution}', [App\Http\Controllers\Admin\AttributionController::class, 'destroy'])->name('admin.attributions.destroy');
 });
 
 
