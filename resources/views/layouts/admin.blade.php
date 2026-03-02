@@ -179,8 +179,8 @@
             <span class="lbl">Attributions</span>
             <span class="tip">Attributions</span>
         </a>
-        <a href="#"
-           class="nav-link text-navy-700 hover:bg-slate-50 flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
+        <a href="{{ route('admin.finances.index') }}"
+           class="nav-link {{ request()->routeIs('admin.finances.index') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
             <span class="material-symbols-outlined shrink-0">payments</span>
             <span class="lbl">Finances</span>
             <span class="tip">Finances</span>

@@ -15,7 +15,22 @@ class EnseignantController extends Controller
 {
     public function index()
     {
-        $enseignants = Enseignant::with('user')->orderBy('created_at', 'desc')->get();
+        $enseignants = Enseignant::with('user')
+            ->whereHas('user', fn($q) => $q->where('est_actif', true)->orWhere('est_actif', false))
+            ->get()
+            ->sortBy(fn($e) => $e->user->nom . ' ' . $e->user->prenom)
+            ->values();
+            
+        // Pagination manuelle
+        $page = request()->get('page', 1);
+        $perPage = 20;
+        $enseignants = new \Illuminate\Pagination\LengthAwarePaginator(
+            $enseignants->forPage($page, $perPage),
+            $enseignants->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
         return view('admin.enseignants', compact('enseignants'));
     }
 

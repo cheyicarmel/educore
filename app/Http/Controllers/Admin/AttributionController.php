@@ -33,8 +33,21 @@ class AttributionController extends Controller
             }
         ])
         ->whereHas('user', fn($q) => $q->where('est_actif', true))
-        ->orderBy('created_at', 'asc')
-        ->get();
+        ->get()
+        ->sortBy(fn($e) => $e->user->nom . ' ' . $e->user->prenom)
+        ->values();
+
+        // Pagination manuelle
+
+        $page = request()->get('page', 1);
+        $perPage = 10;
+        $enseignants = new \Illuminate\Pagination\LengthAwarePaginator(
+            $enseignants->forPage($page, $perPage),
+            $enseignants->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         $annees   = AnneeAcademique::where('statut', '!=', 'a_venir')->orderBy('date_debut', 'desc')->get();
         $matieres = Matiere::orderBy('nom')->get();

@@ -63,6 +63,9 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::get('/admin/attributions', [App\Http\Controllers\Admin\AttributionController::class, 'index'])->name('admin.attributions.index');
     Route::post('/admin/attributions', [App\Http\Controllers\Admin\AttributionController::class, 'store'])->name('admin.attributions.store');
     Route::delete('/admin/attributions/{attribution}', [App\Http\Controllers\Admin\AttributionController::class, 'destroy'])->name('admin.attributions.destroy');
+
+    // Finances
+    Route::get('/admin/finances', [App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('admin.finances.index');
 });
 
 

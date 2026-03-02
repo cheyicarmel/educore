@@ -216,6 +216,38 @@
 
     @endforeach
 </div>
+
+{{-- Pagination --}}
+@if($enseignants->hasPages())
+<div class="mt-5 flex items-center justify-between">
+    <p class="text-xs text-navy-700">
+        Affichage de <strong>{{ $enseignants->firstItem() }}</strong> à <strong>{{ $enseignants->lastItem() }}</strong>
+        sur <strong>{{ $enseignants->total() }}</strong> enseignants
+    </p>
+    <div class="flex items-center gap-1">
+        @if($enseignants->onFirstPage())
+        <span class="px-3 py-2 text-xs font-semibold text-slate-300 bg-white border border-slate-200 rounded-xl cursor-not-allowed">←</span>
+        @else
+        <a href="{{ $enseignants->previousPageUrl() }}" class="px-3 py-2 text-xs font-semibold text-navy-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">←</a>
+        @endif
+
+        @foreach($enseignants->getUrlRange(max(1, $enseignants->currentPage()-2), min($enseignants->lastPage(), $enseignants->currentPage()+2)) as $page => $url)
+        @if($page == $enseignants->currentPage())
+        <span class="px-3 py-2 text-xs font-bold text-white bg-primary rounded-xl">{{ $page }}</span>
+        @else
+        <a href="{{ $url }}" class="px-3 py-2 text-xs font-semibold text-navy-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">{{ $page }}</a>
+        @endif
+        @endforeach
+
+        @if($enseignants->hasMorePages())
+        <a href="{{ $enseignants->nextPageUrl() }}" class="px-3 py-2 text-xs font-semibold text-navy-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">→</a>
+        @else
+        <span class="px-3 py-2 text-xs font-semibold text-slate-300 bg-white border border-slate-200 rounded-xl cursor-not-allowed">→</span>
+        @endif
+    </div>
+</div>
+@endif
+
 @endif
 
 @endsection

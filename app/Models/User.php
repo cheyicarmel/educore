@@ -27,4 +27,10 @@ class User extends Authenticatable
         'password' => 'hashed',
         'est_actif' => 'boolean',
     ];
+
+    public function getNomAttribute($value): string
+    {
+        return strtoupper($value);
+    }
 }
+

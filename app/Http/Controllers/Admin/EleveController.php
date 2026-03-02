@@ -59,7 +59,21 @@ class EleveController extends Controller
             });
         }
 
-        $eleves  = $query->orderBy('created_at', 'desc')->get();
+        $eleves = $query->get()
+            ->sortBy(fn($e) => $e->user->nom . ' ' . $e->user->prenom)
+            ->values();
+
+        // Pagination manuelle
+        $page = request()->get('page', 1);
+        $perPage = 20;
+        $eleves = new \Illuminate\Pagination\LengthAwarePaginator(
+            $eleves->forPage($page, $perPage),
+            $eleves->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
         $annees  = AnneeAcademique::where('statut', '!=', 'a_venir')->orderBy('date_debut', 'desc')->get();
         $classes = Classe::where('annee_academique_id', $anneeSelectionnee?->id)->orderBy('nom')->get();
 
