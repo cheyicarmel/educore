@@ -34,4 +34,29 @@ class Inscription extends Model
     {
         return $this->belongsTo(AnneeAcademique::class, 'annee_academique_id');
     }
+
+    public function suiviFinancier()
+    {
+        return $this->hasOne(SuiviFinancier::class, 'inscription_id');
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(Note::class, 'inscription_id');
+    }
+
+    public function moyenneMatieres()
+    {
+        return $this->hasMany(MoyenneMatiere::class, 'inscription_id');
+    }
+
+    public function moyenneSemestres()
+    {
+        return $this->hasMany(MoyenneSemestre::class, 'inscription_id');
+    }
+
+    public function moyenneAnnuelle()
+    {
+        return $this->hasOne(MoyenneAnnuelle::class, 'inscription_id');
+    }
 }

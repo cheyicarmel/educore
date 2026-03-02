@@ -51,6 +51,12 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::put('/admin/enseignants/{enseignant}', [App\Http\Controllers\Admin\EnseignantController::class, 'update'])->name('admin.enseignants.update');
     Route::patch('/admin/enseignants/{enseignant}/toggle', [App\Http\Controllers\Admin\EnseignantController::class, 'toggleStatus'])->name('admin.enseignants.toggle');
     Route::delete('/admin/enseignants/{enseignant}', [App\Http\Controllers\Admin\EnseignantController::class, 'destroy'])->name('admin.enseignants.destroy');
+
+    // Élèves
+    Route::get('/admin/eleves', [App\Http\Controllers\Admin\EleveController::class, 'index'])->name('admin.eleves.index');
+    Route::post('/admin/eleves', [App\Http\Controllers\Admin\EleveController::class, 'store'])->name('admin.eleves.store');
+    Route::put('/admin/eleves/{eleve}', [App\Http\Controllers\Admin\EleveController::class, 'update'])->name('admin.eleves.update');
+    Route::delete('/admin/eleves/{eleve}', [App\Http\Controllers\Admin\EleveController::class, 'destroy'])->name('admin.eleves.destroy');
 });
 
 
