@@ -199,8 +199,8 @@
         @endif
 
         <div class="pt-2 border-t border-slate-100">
-            <a href="#"
-               class="nav-link text-navy-700 hover:bg-slate-50 flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
+            <a href="{{ route('admin.parametres.index') }}"
+                class="nav-link {{ request()->routeIs('admin.parametres.index') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
                 <span class="material-symbols-outlined shrink-0">settings</span>
                 <span class="lbl">Paramètres</span>
                 <span class="tip">Paramètres</span>

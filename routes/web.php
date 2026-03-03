@@ -73,6 +73,10 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::put('/admin/administrateurs/{user}', [App\Http\Controllers\Admin\AdministrateurController::class, 'update'])->name('admin.administrateurs.update');
     Route::patch('/admin/administrateurs/{user}/toggle', [App\Http\Controllers\Admin\AdministrateurController::class, 'toggleStatus'])->name('admin.administrateurs.toggle');
     Route::delete('/admin/administrateurs/{user}', [App\Http\Controllers\Admin\AdministrateurController::class, 'destroy'])->name('admin.administrateurs.destroy');
+
+    // Paramètres
+    Route::get('/admin/parametres',  [App\Http\Controllers\Admin\ParametreController::class, 'index'])->name('admin.parametres.index');
+    Route::put('/admin/parametres',  [App\Http\Controllers\Admin\ParametreController::class, 'update'])->name('admin.parametres.update');
 });
 
 
