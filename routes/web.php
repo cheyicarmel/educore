@@ -16,9 +16,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Admin et Superadmin
 
 Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
     
     // Années académiques
     Route::get('/admin/annees', [App\Http\Controllers\Admin\AnneeAcademiqueController::class, 'index'])->name('admin.annees.index');

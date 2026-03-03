@@ -249,8 +249,13 @@
                 <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
             <div class="hidden lg:flex flex-col text-right ml-2">
-                <p class="text-xs font-semibold text-navy-900">Année 2024-2025</p>
-                <p class="text-[10px] text-navy-700 uppercase tracking-wide">Semestre 1 · Active</p>
+                @if($anneeActiveLayout)
+                    <p class="text-xs font-semibold text-navy-900">Année {{ $anneeActiveLayout->libelle }}</p>
+                    <p class="text-[10px] text-navy-700 uppercase tracking-wide">Active</p>
+                    @else
+                    <p class="text-xs font-semibold text-amber-600">Aucune année active</p>
+                    <p class="text-[10px] text-navy-700 uppercase tracking-wide">À configurer</p>
+                @endif
             </div>
             <div class="md:hidden flex items-center gap-2">
                 <div class="p-2 rounded-xl text-white shrink-0">
