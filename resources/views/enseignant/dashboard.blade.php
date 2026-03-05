@@ -148,10 +148,10 @@
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-4 md:p-5 border-b border-slate-200 flex items-center justify-between">
             <h2 class="text-base md:text-lg font-bold text-navy-900">Dernières Notes Saisies</h2>
-            <a href="{{ route('enseignant.notes.index') }}" class="flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
+            <!-- <a href="{{ route('enseignant.notes.index') }}" class="flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
                 Saisir des notes
                 <span class="material-symbols-outlined text-sm">add</span>
-            </a>
+            </a> -->
         </div>
 
         @if($dernieresNotes->isEmpty())
