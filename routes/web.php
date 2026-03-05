@@ -81,9 +81,20 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
 //  Enseignant
 
 Route::middleware(['auth', 'role:enseignant'])->group(function () {
-    Route::get('/enseignant/dashboard', function () {
-        return view('enseignant.dashboard');
-    })->name('enseignant.dashboard');
+
+    // Dashboard
+    Route::get('/enseignant/dashboard', [App\Http\Controllers\Enseignant\DashboardController::class, 'index'])->name('enseignant.dashboard');
+    
+    // Les Classes
+    Route::get('/enseignant/classes', [App\Http\Controllers\Enseignant\ClasseController::class, 'index'])->name('enseignant.classes.index');
+        // Saisir des notes depui de la liste des classes
+        Route::get('/enseignant/notes',  [App\Http\Controllers\Enseignant\NoteController::class, 'index'])->name('enseignant.notes.index');
+        Route::post('/enseignant/notes', [App\Http\Controllers\Enseignant\NoteController::class, 'store'])->name('enseignant.notes.store');
+
+    Route::get('/enseignant/ma-classe',  fn() => view('enseignant.ma-classe'))->name('enseignant.ma-classe');
+    Route::get('/enseignant/moyennes',   fn() => view('enseignant.moyennes'))->name('enseignant.moyennes.index');
+    Route::get('/enseignant/bulletins',  fn() => view('enseignant.bulletins'))->name('enseignant.bulletins.index');
+    Route::get('/enseignant/profil',     fn() => view('enseignant.profil'))->name('enseignant.profil');
 });
 
 

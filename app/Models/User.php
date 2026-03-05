@@ -28,6 +28,11 @@ class User extends Authenticatable
         'est_actif' => 'boolean',
     ];
 
+    public function enseignant()
+    {
+        return $this->hasOne(Enseignant::class);
+    }
+
     public function getNomAttribute($value): string
     {
         return strtoupper($value);

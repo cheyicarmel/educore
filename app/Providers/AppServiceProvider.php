@@ -19,5 +19,10 @@ class AppServiceProvider extends ServiceProvider
             $anneeActive = AnneeAcademique::active()->first();
             $view->with('anneeActiveLayout', $anneeActive);
         });
+
+        View::composer('layouts.enseignant', function ($view) {
+            $anneeActive = AnneeAcademique::active()->first();
+            $view->with('anneeActiveLayout', $anneeActive);
+        });
     }
 }
