@@ -125,20 +125,6 @@
             <span class="tip">Saisie des Notes</span>
         </a>
 
-        <a href="{{ route('enseignant.moyennes.index') }}"
-            class="nav-link {{ request()->routeIs('enseignant.moyennes.*') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
-            <span class="material-symbols-outlined shrink-0">calculate</span>
-            <span class="lbl">Moyennes</span>
-            <span class="tip">Moyennes</span>
-        </a>
-
-        <a href="{{ route('enseignant.bulletins.index') }}"
-            class="nav-link {{ request()->routeIs('enseignant.bulletins.*') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
-            <span class="material-symbols-outlined shrink-0">description</span>
-            <span class="lbl">Bulletins</span>
-            <span class="tip">Bulletins</span>
-        </a>
-
         <div class="pt-2 border-t border-slate-100">
             <a href="{{ route('enseignant.profil') }}"
                 class="nav-link {{ request()->routeIs('enseignant.profil') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">

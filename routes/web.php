@@ -90,10 +90,14 @@ Route::middleware(['auth', 'role:enseignant'])->group(function () {
         // Saisir des notes depui de la liste des classes
         Route::get('/enseignant/notes',  [App\Http\Controllers\Enseignant\NoteController::class, 'index'])->name('enseignant.notes.index');
         Route::post('/enseignant/notes', [App\Http\Controllers\Enseignant\NoteController::class, 'store'])->name('enseignant.notes.store');
+        Route::post('/enseignant/notes/valider-moyennes', [App\Http\Controllers\Enseignant\NoteController::class, 'validerMoyennes'])->name('enseignant.notes.valider-moyennes');
+    
+    // Classe principale
+    Route::get('/enseignant/ma-classe',              [App\Http\Controllers\Enseignant\MaClassePrincipaleController::class, 'index'])->name('enseignant.ma-classe');
+    Route::post('/enseignant/ma-classe/calculer',    [App\Http\Controllers\Enseignant\MaClassePrincipaleController::class, 'calculerMoyennes'])->name('enseignant.ma-classe.calculer-moyennes');
+    Route::post('/enseignant/ma-classe/releve',      [App\Http\Controllers\Enseignant\MaClassePrincipaleController::class, 'genererReleve'])->name('enseignant.ma-classe.generer-releve');
 
-    Route::get('/enseignant/ma-classe',  fn() => view('enseignant.ma-classe'))->name('enseignant.ma-classe');
-    Route::get('/enseignant/moyennes',   fn() => view('enseignant.moyennes'))->name('enseignant.moyennes.index');
-    Route::get('/enseignant/bulletins',  fn() => view('enseignant.bulletins'))->name('enseignant.bulletins.index');
+    
     Route::get('/enseignant/profil',     fn() => view('enseignant.profil'))->name('enseignant.profil');
 });
 
