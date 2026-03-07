@@ -1,19 +1,19 @@
 @extends('layouts.admin')
 
-@section('title', 'Administrateurs — EduCore')
+@section('title', 'Comptes & Accès — EduCore')
 
 @section('content')
 
 {{-- Header --}}
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
-        <h1 class="text-2xl md:text-3xl font-extrabold text-navy-900 tracking-tight">Administrateurs</h1>
-        <p class="text-sm text-navy-700 mt-1">Gérez les comptes administrateurs et super administrateurs.</p>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-navy-900 tracking-tight">Comptes & Accès</h1>
+        <p class="text-sm text-navy-700 mt-1">Gérez les comptes administrateurs, super administrateurs et comptables.</p>
     </div>
     <button onclick="openModal('modal-create')"
         class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-colors shrink-0">
         <span class="material-symbols-outlined text-base">add</span>
-        Nouvel Administrateur
+        Nouveau Compte
     </button>
 </div>
 
@@ -24,7 +24,6 @@
     <p class="text-sm font-semibold text-emerald-700">{{ session('success') }}</p>
 </div>
 @endif
-
 @if(session('error'))
 <div class="mb-5 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3">
     <span class="material-symbols-outlined text-rose-500">error</span>
@@ -35,14 +34,14 @@
 {{-- Tableau --}}
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
     <div class="p-4 md:p-5 border-b border-slate-200 flex items-center justify-between">
-        <h2 class="text-base font-bold text-navy-900">Liste des Administrateurs</h2>
-        <span class="text-xs text-navy-700 font-medium">{{ $admins->count() }} administrateur{{ $admins->count() > 1 ? 's' : '' }}</span>
+        <h2 class="text-base font-bold text-navy-900">Liste des Comptes</h2>
+        <span class="text-xs text-navy-700 font-medium">{{ $admins->count() }} compte{{ $admins->count() > 1 ? 's' : '' }}</span>
     </div>
 
     @if($admins->isEmpty())
     <div class="p-12 text-center">
         <span class="material-symbols-outlined text-slate-300 text-5xl">admin_panel_settings</span>
-        <p class="text-sm font-semibold text-slate-400 mt-3">Aucun administrateur trouvé.</p>
+        <p class="text-sm font-semibold text-slate-400 mt-3">Aucun compte trouvé.</p>
     </div>
     @else
 
@@ -51,7 +50,7 @@
         <table class="w-full text-left" style="min-width:600px;">
             <thead>
                 <tr class="bg-slate-50">
-                    <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Administrateur</th>
+                    <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Compte</th>
                     <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Email</th>
                     <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Rôle</th>
                     <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Statut</th>
@@ -60,12 +59,19 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @foreach($admins as $admin)
-                @php $estMoi = $admin->id === auth()->id(); @endphp
+                @php
+                    $estMoi = $admin->id === auth()->id();
+                    $roleConfig = match($admin->role) {
+                        'superadmin' => ['bg' => 'bg-violet-100', 'text' => 'text-violet-600', 'badge' => 'bg-violet-100 text-violet-700', 'icon' => 'shield', 'label' => 'Super Admin'],
+                        'comptable'  => ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-600', 'badge' => 'bg-emerald-100 text-emerald-700', 'icon' => 'account_balance_wallet', 'label' => 'Comptable'],
+                        default      => ['bg' => 'bg-primary/10', 'text' => 'text-primary', 'badge' => 'bg-blue-50 text-blue-700', 'icon' => 'admin_panel_settings', 'label' => 'Admin'],
+                    };
+                @endphp
                 <tr class="hover:bg-slate-50 transition-colors {{ !$admin->est_actif ? 'opacity-60' : '' }}">
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-full {{ $admin->role === 'superadmin' ? 'bg-violet-100' : 'bg-primary/10' }} flex items-center justify-center shrink-0">
-                                <span class="text-sm font-bold {{ $admin->role === 'superadmin' ? 'text-violet-600' : 'text-primary' }}">
+                            <div class="w-9 h-9 rounded-full {{ $roleConfig['bg'] }} flex items-center justify-center shrink-0">
+                                <span class="text-sm font-bold {{ $roleConfig['text'] }}">
                                     {{ strtoupper(substr($admin->prenom, 0, 1) . substr($admin->nom, 0, 1)) }}
                                 </span>
                             </div>
@@ -79,15 +85,10 @@
                     </td>
                     <td class="px-6 py-4 text-sm text-navy-700">{{ $admin->email }}</td>
                     <td class="px-6 py-4">
-                        @if($admin->role === 'superadmin')
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-violet-100 text-violet-700 text-xs font-bold rounded-lg">
-                            <span class="material-symbols-outlined text-sm">shield</span>Super Admin
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 {{ $roleConfig['badge'] }} text-xs font-bold rounded-lg">
+                            <span class="material-symbols-outlined text-sm">{{ $roleConfig['icon'] }}</span>
+                            {{ $roleConfig['label'] }}
                         </span>
-                        @else
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg">
-                            <span class="material-symbols-outlined text-sm">admin_panel_settings</span>Admin
-                        </span>
-                        @endif
                     </td>
                     <td class="px-6 py-4">
                         @if($admin->est_actif)
@@ -123,7 +124,7 @@
                                     <span class="material-symbols-outlined text-base">delete</span>
                                 </button>
                             @else
-                                <span class="p-1.5 text-slate-200 cursor-not-allowed" title="Impossible d'agir sur votre propre compte">
+                                <span class="p-1.5 text-slate-200 cursor-not-allowed">
                                     <span class="material-symbols-outlined text-base">block</span>
                                 </span>
                                 <span class="p-1.5 text-slate-200 cursor-not-allowed">
@@ -141,12 +142,19 @@
     {{-- Vue cartes mobile --}}
     <div class="md:hidden divide-y divide-slate-100">
         @foreach($admins as $admin)
-        @php $estMoi = $admin->id === auth()->id(); @endphp
+        @php
+            $estMoi = $admin->id === auth()->id();
+            $roleConfig = match($admin->role) {
+                'superadmin' => ['bg' => 'bg-violet-100', 'text' => 'text-violet-600', 'badge' => 'bg-violet-100 text-violet-700', 'icon' => 'shield', 'label' => 'Super Admin'],
+                'comptable'  => ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-600', 'badge' => 'bg-emerald-100 text-emerald-700', 'icon' => 'account_balance_wallet', 'label' => 'Comptable'],
+                default      => ['bg' => 'bg-primary/10', 'text' => 'text-primary', 'badge' => 'bg-blue-50 text-blue-700', 'icon' => 'admin_panel_settings', 'label' => 'Admin'],
+            };
+        @endphp
         <div class="p-4 space-y-3 {{ !$admin->est_actif ? 'opacity-60' : '' }}">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full {{ $admin->role === 'superadmin' ? 'bg-violet-100' : 'bg-primary/10' }} flex items-center justify-center shrink-0">
-                        <span class="text-sm font-bold {{ $admin->role === 'superadmin' ? 'text-violet-600' : 'text-primary' }}">
+                    <div class="w-9 h-9 rounded-full {{ $roleConfig['bg'] }} flex items-center justify-center shrink-0">
+                        <span class="text-sm font-bold {{ $roleConfig['text'] }}">
                             {{ strtoupper(substr($admin->prenom, 0, 1) . substr($admin->nom, 0, 1)) }}
                         </span>
                     </div>
@@ -155,15 +163,10 @@
                         <p class="text-xs text-navy-700">{{ $admin->email }}</p>
                     </div>
                 </div>
-                @if($admin->role === 'superadmin')
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-violet-100 text-violet-700 text-xs font-bold rounded-lg">
-                    <span class="material-symbols-outlined text-sm">shield</span>Super Admin
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 {{ $roleConfig['badge'] }} text-xs font-bold rounded-lg">
+                    <span class="material-symbols-outlined text-sm">{{ $roleConfig['icon'] }}</span>
+                    {{ $roleConfig['label'] }}
                 </span>
-                @else
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg">
-                    <span class="material-symbols-outlined text-sm">admin_panel_settings</span>Admin
-                </span>
-                @endif
             </div>
             <div class="flex items-center gap-2 pt-1">
                 <button onclick="openModal('modal-edit-{{ $admin->id }}')"
@@ -199,7 +202,7 @@
     <div class="absolute inset-0 bg-black/50" onclick="closeModal('modal-create')"></div>
     <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md">
         <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="text-base font-bold text-navy-900">Nouvel Administrateur</h3>
+            <h3 class="text-base font-bold text-navy-900">Nouveau Compte</h3>
             <button onclick="closeModal('modal-create')" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
                 <span class="material-symbols-outlined text-xl">close</span>
             </button>
@@ -234,19 +237,29 @@
             </div>
             <div>
                 <label class="block text-sm font-semibold text-navy-900 mb-1.5">Rôle <span class="text-rose-500">*</span></label>
-                <div class="grid grid-cols-2 gap-3">
-                    <label class="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:border-primary/50 transition-colors">
+                <div class="grid grid-cols-3 gap-2">
+                    <label class="flex flex-col items-center gap-1.5 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:border-primary/50 transition-colors">
                         <input type="radio" name="role" value="admin" {{ old('role', 'admin') == 'admin' ? 'checked' : '' }} class="accent-primary"/>
-                        <div>
-                            <p class="text-sm font-semibold text-navy-900">Admin</p>
-                            <p class="text-xs text-slate-400">Accès standard</p>
+                        <span class="material-symbols-outlined text-blue-600 text-xl">admin_panel_settings</span>
+                        <div class="text-center">
+                            <p class="text-xs font-bold text-navy-900">Admin</p>
+                            <p class="text-[10px] text-slate-400">Standard</p>
                         </div>
                     </label>
-                    <label class="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:border-primary/50 transition-colors">
+                    <label class="flex flex-col items-center gap-1.5 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:border-primary/50 transition-colors">
                         <input type="radio" name="role" value="superadmin" {{ old('role') == 'superadmin' ? 'checked' : '' }} class="accent-primary"/>
-                        <div>
-                            <p class="text-sm font-semibold text-navy-900">Super Admin</p>
-                            <p class="text-xs text-slate-400">Accès complet</p>
+                        <span class="material-symbols-outlined text-violet-600 text-xl">shield</span>
+                        <div class="text-center">
+                            <p class="text-xs font-bold text-navy-900">Super Admin</p>
+                            <p class="text-[10px] text-slate-400">Complet</p>
+                        </div>
+                    </label>
+                    <label class="flex flex-col items-center gap-1.5 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:border-primary/50 transition-colors">
+                        <input type="radio" name="role" value="comptable" {{ old('role') == 'comptable' ? 'checked' : '' }} class="accent-primary"/>
+                        <span class="material-symbols-outlined text-emerald-600 text-xl">account_balance_wallet</span>
+                        <div class="text-center">
+                            <p class="text-xs font-bold text-navy-900">Comptable</p>
+                            <p class="text-[10px] text-slate-400">Finance</p>
                         </div>
                     </label>
                 </div>
@@ -262,14 +275,21 @@
 
 {{-- ═══════ MODALS DYNAMIQUES ═══════ --}}
 @foreach($admins as $admin)
-@php $estMoi = $admin->id === auth()->id(); @endphp
+@php
+    $estMoi = $admin->id === auth()->id();
+    $roleConfig = match($admin->role) {
+        'superadmin' => ['bg' => 'bg-violet-100', 'text' => 'text-violet-600', 'badge' => 'bg-violet-100 text-violet-700', 'icon' => 'shield', 'label' => 'Super Admin'],
+        'comptable'  => ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-600', 'badge' => 'bg-emerald-100 text-emerald-700', 'icon' => 'account_balance_wallet', 'label' => 'Comptable'],
+        default      => ['bg' => 'bg-primary/10', 'text' => 'text-primary', 'badge' => 'bg-blue-50 text-blue-700', 'icon' => 'admin_panel_settings', 'label' => 'Admin'],
+    };
+@endphp
 
 {{-- Modal Modifier --}}
 <div id="modal-edit-{{ $admin->id }}" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/50" onclick="closeModal('modal-edit-{{ $admin->id }}')"></div>
     <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md">
         <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="text-base font-bold text-navy-900">Modifier l'Administrateur</h3>
+            <h3 class="text-base font-bold text-navy-900">Modifier le Compte</h3>
             <button onclick="closeModal('modal-edit-{{ $admin->id }}')" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
                 <span class="material-symbols-outlined text-xl">close</span>
             </button>
@@ -296,19 +316,29 @@
             </div>
             <div>
                 <label class="block text-sm font-semibold text-navy-900 mb-1.5">Rôle <span class="text-rose-500">*</span></label>
-                <div class="grid grid-cols-2 gap-3">
-                    <label class="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer {{ $estMoi ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50' }} transition-colors">
+                <div class="grid grid-cols-3 gap-2">
+                    <label class="flex flex-col items-center gap-1.5 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer {{ $estMoi ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50' }} transition-colors">
                         <input type="radio" name="role" value="admin" {{ $admin->role == 'admin' ? 'checked' : '' }} {{ $estMoi ? 'disabled' : '' }} class="accent-primary"/>
-                        <div>
-                            <p class="text-sm font-semibold text-navy-900">Admin</p>
-                            <p class="text-xs text-slate-400">Accès standard</p>
+                        <span class="material-symbols-outlined text-blue-600 text-xl">admin_panel_settings</span>
+                        <div class="text-center">
+                            <p class="text-xs font-bold text-navy-900">Admin</p>
+                            <p class="text-[10px] text-slate-400">Standard</p>
                         </div>
                     </label>
-                    <label class="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer {{ $estMoi ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50' }} transition-colors">
+                    <label class="flex flex-col items-center gap-1.5 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer {{ $estMoi ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50' }} transition-colors">
                         <input type="radio" name="role" value="superadmin" {{ $admin->role == 'superadmin' ? 'checked' : '' }} {{ $estMoi ? 'disabled' : '' }} class="accent-primary"/>
-                        <div>
-                            <p class="text-sm font-semibold text-navy-900">Super Admin</p>
-                            <p class="text-xs text-slate-400">Accès complet</p>
+                        <span class="material-symbols-outlined text-violet-600 text-xl">shield</span>
+                        <div class="text-center">
+                            <p class="text-xs font-bold text-navy-900">Super Admin</p>
+                            <p class="text-[10px] text-slate-400">Complet</p>
+                        </div>
+                    </label>
+                    <label class="flex flex-col items-center gap-1.5 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer {{ $estMoi ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50' }} transition-colors">
+                        <input type="radio" name="role" value="comptable" {{ $admin->role == 'comptable' ? 'checked' : '' }} {{ $estMoi ? 'disabled' : '' }} class="accent-primary"/>
+                        <span class="material-symbols-outlined text-emerald-600 text-xl">account_balance_wallet</span>
+                        <div class="text-center">
+                            <p class="text-xs font-bold text-navy-900">Comptable</p>
+                            <p class="text-[10px] text-slate-400">Finance</p>
                         </div>
                     </label>
                 </div>
@@ -391,14 +421,12 @@
         modal.classList.add('flex');
         document.body.style.overflow = 'hidden';
     }
-
     function closeModal(id) {
         const modal = document.getElementById(id);
         modal.classList.add('hidden');
         modal.classList.remove('flex');
         document.body.style.overflow = '';
     }
-
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             document.querySelectorAll('[id^="modal-"]').forEach(modal => {
@@ -408,7 +436,6 @@
             });
         }
     });
-
     @if($errors->any())
         openModal('modal-create');
     @endif

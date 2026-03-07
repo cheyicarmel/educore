@@ -14,7 +14,7 @@ class AdministrateurController extends Controller
 {
     public function index()
     {
-        $admins = User::whereIn('role', ['admin', 'superadmin'])
+        $admins = User::whereIn('role', ['admin', 'superadmin', 'comptable'])
             ->orderBy('nom')
             ->orderBy('prenom')
             ->get();
@@ -28,7 +28,7 @@ class AdministrateurController extends Controller
             'nom'    => 'required|string|max:100',
             'prenom' => 'required|string|max:100',
             'email'  => 'required|email|max:150|unique:users,email',
-            'role'   => 'required|in:admin,superadmin',
+            'role'   => 'required|in:admin,superadmin,comptable',
         ], [
             'nom.required'    => 'Le nom est obligatoire.',
             'prenom.required' => 'Le prénom est obligatoire.',

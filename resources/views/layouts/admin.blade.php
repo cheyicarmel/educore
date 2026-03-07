@@ -192,8 +192,8 @@
             <a href="{{ route('admin.administrateurs.index') }}"
                 class="nav-link {{ request()->routeIs('admin.administrateurs.index') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
                 <span class="material-symbols-outlined shrink-0">admin_panel_settings</span>
-                <span class="lbl">Administrateurs</span>
-                <span class="tip">Administrateurs</span>
+                <span class="lbl">Comptes et Accès</span>
+                <span class="tip">Comptes et Accès</span>
             </a>
         </div>
         @endif
