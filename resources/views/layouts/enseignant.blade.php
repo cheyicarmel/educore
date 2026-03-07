@@ -236,6 +236,164 @@
     }
     window.addEventListener('resize', handleResize);
     handleResize();
+
+    // ── BARRE DE RECHERCHE CONTEXTUELLE ───────────────────────────
+    const searchInput = document.querySelector('input[placeholder="Rechercher un élève..."]');
+    const searchWrapper = searchInput?.parentElement;
+
+    // Créer le dropdown
+    const dropdown = document.createElement('div');
+    dropdown.id = 'search-dropdown';
+    dropdown.className = 'absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg z-50 hidden overflow-hidden';
+    searchWrapper?.appendChild(dropdown);
+    if (searchWrapper) searchWrapper.style.position = 'relative';
+
+    // Détecter la page active
+    function getPageContext() {
+        const path = window.location.pathname;
+        if (path.includes('/enseignant/notes'))    return 'notes';
+        if (path.includes('/enseignant/ma-classe')) return 'ma-classe';
+        if (path.includes('/enseignant/classes'))  return 'classes';
+        return null;
+    }
+
+    // Collecter les items selon le contexte
+    function getItems() {
+        const context = getPageContext();
+        const items   = [];
+
+        if (context === 'notes' || context === 'ma-classe') {
+            document.querySelectorAll('tbody tr[data-inscription]').forEach(row => {
+                // Chercher d'abord data-eleve-nom, sinon fallback sur les classes
+                const nomEl = row.querySelector('[data-eleve-nom]')
+                        ?? row.querySelector('.text-sm.font-bold.text-navy-900')
+                        ?? row.querySelector('.text-sm.font-semibold.text-navy-900');
+                if (nomEl) {
+                    items.push({
+                        label: nomEl.textContent.trim(),
+                        type:  'eleve',
+                        el:    row,
+                    });
+                }
+            });
+        }
+
+        if (context === 'classes') {
+            document.querySelectorAll('[data-classe-card]').forEach(card => {
+                const nomEl = card.querySelector('[data-classe-nom]');
+                if (nomEl) {
+                    items.push({
+                        label: nomEl.textContent.trim(),
+                        type:  'classe',
+                        el:    card,
+                    });
+                }
+            });
+        }
+
+        return items;
+    }
+
+    // Highlight temporaire
+    function highlightElement(el) {
+        el.classList.add('bg-primary/10', 'transition-colors');
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => el.classList.remove('bg-primary/10'), 2500);
+    }
+
+    // Afficher le dropdown
+    function afficherDropdown(resultats, query) {
+        dropdown.innerHTML = '';
+
+        if (resultats.length === 0) {
+            dropdown.innerHTML = `
+                <div class="px-4 py-3 text-sm text-slate-400 text-center flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">search_off</span>
+                    Aucun résultat pour "<strong>${query}</strong>"
+                </div>`;
+            dropdown.classList.remove('hidden');
+            return;
+        }
+
+        resultats.slice(0, 6).forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 cursor-pointer transition-colors border-b border-slate-100 last:border-0';
+
+            const icon = item.type === 'eleve' ? 'person' : 'groups';
+            const highlighted = item.label.replace(
+                new RegExp(query, 'gi'),
+                m => `<span class="text-primary font-extrabold">${m}</span>`
+            );
+
+            div.innerHTML = `
+                <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-primary text-sm">${icon}</span>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-navy-900 truncate">${highlighted}</p>
+                    <p class="text-[11px] text-slate-400">${item.type === 'eleve' ? 'Élève' : 'Classe'}</p>
+                </div>
+                <span class="material-symbols-outlined text-slate-300 text-sm ml-auto shrink-0">arrow_forward</span>`;
+
+            div.addEventListener('click', () => {
+                highlightElement(item.el);
+                dropdown.classList.add('hidden');
+                searchInput.value = '';
+            });
+
+            dropdown.appendChild(div);
+        });
+
+        if (resultats.length > 6) {
+            const more = document.createElement('div');
+            more.className = 'px-4 py-2 text-xs text-slate-400 text-center bg-slate-50';
+            more.textContent = `+${resultats.length - 6} autres résultats — affinez votre recherche`;
+            dropdown.appendChild(more);
+        }
+
+        dropdown.classList.remove('hidden');
+    }
+
+    // Écouter la saisie
+    searchInput?.addEventListener('input', function () {
+        const query = this.value.trim().toLowerCase();
+
+        if (!getPageContext()) {
+            dropdown.classList.add('hidden');
+            return;
+        }
+
+        if (query.length < 2) {
+            dropdown.classList.add('hidden');
+            return;
+        }
+
+        const items     = getItems();
+        const resultats = items.filter(i => i.label.toLowerCase().includes(query));
+        afficherDropdown(resultats, query);
+    });
+
+    // Fermer si clic dehors
+    document.addEventListener('click', (e) => {
+        if (!searchWrapper?.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    // Placeholder contextuel
+    function mettreAJourPlaceholder() {
+        const context = getPageContext();
+        if (!searchInput) return;
+        if (context === 'notes')      searchInput.placeholder = 'Rechercher un élève...';
+        else if (context === 'ma-classe') searchInput.placeholder = 'Rechercher un élève...';
+        else if (context === 'classes')   searchInput.placeholder = 'Rechercher une classe...';
+        else {
+            searchInput.placeholder = 'Rechercher...';
+            searchInput.disabled    = true;
+            searchInput.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+    mettreAJourPlaceholder();
 </script>
 
 @yield('scripts')

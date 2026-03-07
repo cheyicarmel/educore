@@ -39,7 +39,6 @@
 
     {{-- KPIs --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4">
             <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-blue-600 text-xl">checklist</span>
@@ -52,7 +51,6 @@
                 <p class="text-xs text-slate-400 mt-0.5">matières complètes</p>
             </div>
         </div>
-
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4">
             <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-emerald-600 text-xl">calculate</span>
@@ -65,7 +63,6 @@
                 <p class="text-xs text-slate-400 mt-0.5">élèves</p>
             </div>
         </div>
-
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4">
             <div class="w-11 h-11 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-violet-600 text-xl">bar_chart</span>
@@ -79,7 +76,6 @@
                 @endif
             </div>
         </div>
-
     </div>
 
     {{-- Statut saisie par matière --}}
@@ -115,7 +111,6 @@
 
     {{-- Actions --}}
     <div class="flex flex-wrap items-center gap-3">
-        {{-- Calculer moyennes --}}
         @if($toutesNotesSaisies && $elevesAvecMoyenne < $effectif)
         <form method="POST" action="{{ route('enseignant.ma-classe.calculer-moyennes') }}">
             @csrf
@@ -140,7 +135,6 @@
         </button>
         @endif
 
-        {{-- Générer relevé --}}
         @if($elevesAvecMoyenne === $effectif && $effectif > 0)
         <form method="POST" action="{{ route('enseignant.ma-classe.generer-releve') }}">
             @csrf
@@ -161,7 +155,7 @@
         @endif
     </div>
 
-    {{-- Tableau élèves --}}
+    {{-- Tableau élèves semestre --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-4 md:p-5 border-b border-slate-200">
             <h2 class="text-base font-bold text-navy-900">Élèves — Semestre {{ $vue }}</h2>
@@ -169,6 +163,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left" style="min-width: 560px;">
                 <thead>
+                    {{-- PAS de data-inscription ici --}}
                     <tr class="bg-slate-50">
                         <th class="px-5 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Élève</th>
                         <th class="px-4 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider text-center">Rang</th>
@@ -179,7 +174,7 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($elevesAvecStats as $item)
                     @php $eleve = $item['eleve']; @endphp
-                    <tr class="hover:bg-slate-50 transition-colors">
+                    <tr class="hover:bg-slate-50 transition-colors" data-inscription="{{ $eleve->id }}">
                         <td class="px-5 py-3">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -187,7 +182,8 @@
                                         {{ strtoupper(substr($eleve->prenom, 0, 1) . substr($eleve->nom, 0, 1)) }}
                                     </span>
                                 </div>
-                                <p class="text-sm font-semibold text-navy-900">{{ $eleve->prenom }} {{ $eleve->nom }}</p>
+                                {{-- data-eleve-nom ici --}}
+                                <p class="text-sm font-semibold text-navy-900" data-eleve-nom>{{ $eleve->prenom }} {{ $eleve->nom }}</p>
                             </div>
                         </td>
                         <td class="px-4 py-3 text-center">
@@ -242,7 +238,6 @@
 
     {{-- KPIs annuels --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4">
             <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-emerald-600 text-xl">trending_up</span>
@@ -252,7 +247,6 @@
                 <p class="text-2xl font-extrabold text-emerald-600">{{ $elevesPassants }}</p>
             </div>
         </div>
-
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4">
             <div class="w-11 h-11 rounded-xl bg-rose-50 flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-rose-500 text-xl">replay</span>
@@ -262,7 +256,6 @@
                 <p class="text-2xl font-extrabold text-rose-500">{{ $elevesDoublants }}</p>
             </div>
         </div>
-
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4">
             <div class="w-11 h-11 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-violet-600 text-xl">bar_chart</span>
@@ -276,7 +269,6 @@
                 @endif
             </div>
         </div>
-
     </div>
 
     {{-- Actions annuelles --}}
@@ -333,6 +325,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left" style="min-width: 650px;">
                 <thead>
+                    {{-- PAS de data-inscription ici --}}
                     <tr class="bg-slate-50">
                         <th class="px-5 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Élève</th>
                         <th class="px-4 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider text-center">Moy. S1</th>
@@ -345,7 +338,7 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($elevesAnnuels as $item)
                     @php $eleve = $item['eleve']; @endphp
-                    <tr class="hover:bg-slate-50 transition-colors">
+                    <tr class="hover:bg-slate-50 transition-colors" data-inscription="{{ $eleve->id }}">
                         <td class="px-5 py-3">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -353,7 +346,8 @@
                                         {{ strtoupper(substr($eleve->prenom, 0, 1) . substr($eleve->nom, 0, 1)) }}
                                     </span>
                                 </div>
-                                <p class="text-sm font-semibold text-navy-900">{{ $eleve->prenom }} {{ $eleve->nom }}</p>
+                                {{-- data-eleve-nom ici --}}
+                                <p class="text-sm font-semibold text-navy-900" data-eleve-nom>{{ $eleve->prenom }} {{ $eleve->nom }}</p>
                             </div>
                         </td>
                         <td class="px-4 py-3 text-center">

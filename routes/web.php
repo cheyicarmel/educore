@@ -14,7 +14,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // Admin et Superadmin
-
 Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::get('/admin/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
     
@@ -78,8 +77,9 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
 });
 
 
-//  Enseignant
 
+
+//  Enseignant
 Route::middleware(['auth', 'role:enseignant'])->group(function () {
 
     // Dashboard
@@ -97,9 +97,12 @@ Route::middleware(['auth', 'role:enseignant'])->group(function () {
     Route::post('/enseignant/ma-classe/calculer',    [App\Http\Controllers\Enseignant\MaClassePrincipaleController::class, 'calculerMoyennes'])->name('enseignant.ma-classe.calculer-moyennes');
     Route::post('/enseignant/ma-classe/releve',      [App\Http\Controllers\Enseignant\MaClassePrincipaleController::class, 'genererReleve'])->name('enseignant.ma-classe.generer-releve');
 
-    
-    Route::get('/enseignant/profil',     fn() => view('enseignant.profil'))->name('enseignant.profil');
+    // Profil
+    Route::get('/enseignant/profil', [App\Http\Controllers\Enseignant\ProfilController::class, 'index'])->name('enseignant.profil');
+    Route::put('/enseignant/profil', [App\Http\Controllers\Enseignant\ProfilController::class, 'update'])->name('enseignant.profil.update');
 });
+
+
 
 
 // Élève
@@ -109,6 +112,8 @@ Route::middleware(['auth', 'role:eleve'])->group(function () {
         return view('eleve.dashboard');
     })->name('eleve.dashboard');
 });
+
+
 
 
 // Comptable

@@ -39,7 +39,8 @@
             $stats   = $statsParClasse[$classe->id] ?? ['effectif' => 0, 'notes_saisies' => 0, 'notes_attendues' => 0, 'complet' => false];
         @endphp
 
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+        {{-- data-classe-card sur chaque carte --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow" data-classe-card>
 
             {{-- En-tête carte --}}
             <div class="p-5 border-b border-slate-100">
@@ -49,7 +50,8 @@
                             <span class="material-symbols-outlined {{ $color['text'] }} text-xl">groups</span>
                         </div>
                         <div>
-                            <p class="text-base font-extrabold text-navy-900">{{ $classe->nom }}</p>
+                            {{-- data-classe-nom sur le nom de la classe --}}
+                            <p class="text-base font-extrabold text-navy-900" data-classe-nom>{{ $classe->nom }}</p>
                             <p class="text-xs text-navy-700">{{ $classe->serie->libelle ?? '' }} · {{ ucfirst($classe->cycle) }} cycle</p>
                         </div>
                     </div>
