@@ -115,7 +115,7 @@ Route::middleware(['auth', 'role:eleve'])->group(function () {
     Route::get('/eleve/notes', [App\Http\Controllers\Eleve\NotesController::class, 'index'])->name('eleve.notes');
 
     // Bulletins
-    Route::get('/eleve/bulletins', fn() => view('eleve.bulletins'))->name('eleve.bulletins');
+    Route::get('/eleve/bulletins', [App\Http\Controllers\Eleve\BulletinsController::class, 'index'])->name('eleve.bulletins');
     Route::get('/eleve/bulletins/{id}/download', fn($id) => back())->name('eleve.bulletins.download');
     
     // Profil
