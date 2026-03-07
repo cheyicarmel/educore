@@ -33,6 +33,11 @@ class User extends Authenticatable
         return $this->hasOne(Enseignant::class);
     }
 
+    public function eleve()
+    {
+        return $this->hasOne(Eleve::class);
+    }
+
     public function getNomAttribute($value): string
     {
         return strtoupper($value);

@@ -108,9 +108,18 @@ Route::middleware(['auth', 'role:enseignant'])->group(function () {
 // Élève
 
 Route::middleware(['auth', 'role:eleve'])->group(function () {
-    Route::get('/eleve/dashboard', function () {
-        return view('eleve.dashboard');
-    })->name('eleve.dashboard');
+    // Dashboard
+    Route::get('/eleve/dashboard', [App\Http\Controllers\Eleve\DashboardController::class, 'index'])->name('eleve.dashboard');
+
+    // Notes
+    Route::get('/eleve/notes', [App\Http\Controllers\Eleve\NotesController::class, 'index'])->name('eleve.notes');
+
+    // Bulletins
+    Route::get('/eleve/bulletins', fn() => view('eleve.bulletins'))->name('eleve.bulletins');
+    Route::get('/eleve/bulletins/{id}/download', fn($id) => back())->name('eleve.bulletins.download');
+    
+    // Profil
+    Route::get('/eleve/profil',    fn() => view('eleve.profil'))->name('eleve.profil');
 });
 
 
