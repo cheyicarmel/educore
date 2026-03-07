@@ -119,7 +119,8 @@ Route::middleware(['auth', 'role:eleve'])->group(function () {
     Route::get('/eleve/bulletins/{id}/download', fn($id) => back())->name('eleve.bulletins.download');
     
     // Profil
-    Route::get('/eleve/profil',    fn() => view('eleve.profil'))->name('eleve.profil');
+    Route::get('/eleve/profil',  [App\Http\Controllers\Eleve\ProfilController::class, 'index'])->name('eleve.profil');
+    Route::put('/eleve/profil',  [App\Http\Controllers\Eleve\ProfilController::class, 'update'])->name('eleve.profil.update');
 });
 
 
