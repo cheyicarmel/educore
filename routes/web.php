@@ -129,7 +129,10 @@ Route::middleware(['auth', 'role:eleve'])->group(function () {
 // Comptable
 
 Route::middleware(['auth', 'role:comptable'])->group(function () {
-    Route::get('/comptable/dashboard', function () {
-        return view('comptable.dashboard');
-    })->name('comptable.dashboard');
+    Route::get('/comptable/dashboard', [App\Http\Controllers\Comptable\DashboardController::class, 'index'])->name('comptable.dashboard');
+    Route::get('/comptable/paiements/creer', fn() => view('comptable.paiements.create'))->name('comptable.paiements.create');
+    Route::get('/comptable/paiements', fn() => view('comptable.paiements.index'))->name('comptable.paiements.index');
+    Route::get('/comptable/suivi', fn() => view('comptable.suivi'))->name('comptable.suivi');
+    Route::get('/comptable/retards', fn() => view('comptable.retards'))->name('comptable.retards');
+    Route::get('/comptable/profil', fn() => view('comptable.profil'))->name('comptable.profil');
 });
