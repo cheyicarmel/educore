@@ -49,6 +49,12 @@ class AdministrateurController extends Controller
                 'est_actif' => true,
             ]);
 
+            if ($request->role === 'comptable') {
+                \App\Models\Comptable::create([
+                    'user_id' => $user->id,
+                ]);
+            }
+
             Mail::raw(
                 "Bonjour {$request->prenom} {$request->nom},\n\n" .
                 "Votre compte administrateur EduCore a été créé.\n\n" .

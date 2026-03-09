@@ -38,6 +38,11 @@ class User extends Authenticatable
         return $this->hasOne(Eleve::class);
     }
 
+    public function comptable()
+    {
+        return $this->hasOne(Comptable::class);
+    }
+
     public function getNomAttribute($value): string
     {
         return strtoupper($value);

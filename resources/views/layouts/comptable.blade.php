@@ -121,6 +121,9 @@
             <span class="lbl">Retards de Paiement</span>
             <span class="tip">Retards de Paiement</span>
         </a>
+        <a href="">
+            
+        </a>
         <div class="pt-2 border-t border-slate-100">
             <a href="{{ route('comptable.profil') }}"
                 class="nav-link {{ request()->routeIs('comptable.profil') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
