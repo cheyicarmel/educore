@@ -26,6 +26,6 @@ class Paiement extends Model
 
     public function comptable()
     {
-        return $this->belongsTo(User::class, 'comptable_id');
+        return $this->belongsTo(Comptable::class, 'comptable_id');
     }
 }

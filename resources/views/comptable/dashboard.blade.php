@@ -134,16 +134,9 @@
                 <div class="flex items-center justify-between text-xs">
                     <div class="flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full bg-emerald-500 shrink-0"></span>
-                        <span class="text-navy-700 font-medium">À jour</span>
+                        <span class="text-navy-700 font-medium">Soldés</span>
                     </div>
                     <span class="font-bold text-navy-900">{{ $elevesAJour }}</span>
-                </div>
-                <div class="flex items-center justify-between text-xs">
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
-                        <span class="text-navy-700 font-medium">Partiel</span>
-                    </div>
-                    <span class="font-bold text-navy-900">{{ $elevesPartiel }}</span>
                 </div>
                 <div class="flex items-center justify-between text-xs">
                     <div class="flex items-center gap-2">
@@ -358,10 +351,10 @@ new Chart(ctxArea, {
 new Chart(document.getElementById('donutChart').getContext('2d'), {
     type: 'doughnut',
     data: {
-        labels: ['À jour', 'Partiel', 'En retard'],
+        labels: ['Soldés', 'En retard'],
         datasets: [{
-            data: [{{ $elevesAJour }}, {{ $elevesPartiel }}, {{ $elevesRetard }}],
-            backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
+            data: [{{ $elevesAJour }}, {{ $elevesRetard }}],
+            backgroundColor: ['#10b981', '#f43f5e'],
             borderWidth: 0,
             hoverOffset: 6,
         }]

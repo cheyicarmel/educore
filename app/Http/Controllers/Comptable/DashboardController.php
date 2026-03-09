@@ -17,9 +17,9 @@ class DashboardController extends Controller
         $anneeActive = AnneeAcademique::active()->first();
 
         // KPIs principaux
-        $totalDu         = SuiviFinancier::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->sum('total_du');
-        $totalPaye       = SuiviFinancier::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->sum('total_paye');
-        $totalSolde      = SuiviFinancier::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->sum('solde_restant');
+        $totalDu          = SuiviFinancier::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->sum('total_du');
+        $totalPaye        = SuiviFinancier::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->sum('total_paye');
+        $totalSolde       = SuiviFinancier::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->sum('solde_restant');
         $tauxRecouvrement = $totalDu > 0 ? round(($totalPaye / $totalDu) * 100, 1) : 0;
 
         $paiementsAujourdhui = Paiement::whereDate('date_paiement', today())->count();
@@ -28,11 +28,10 @@ class DashboardController extends Controller
         $encaisseMois = Paiement::whereYear('date_paiement', now()->year)
             ->whereMonth('date_paiement', now()->month)->sum('montant');
 
-        // Statuts élèves
-        $elevesAJour   = SuiviFinancier::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->where('statut', 'a_jour')->count();
-        $elevesPartiel = SuiviFinancier::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->where('statut', 'partiel')->count();
+        // Statuts élèves — ENUM réel : solde, en_retard
+        $elevesAJour   = SuiviFinancier::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->where('statut', 'solde')->count();
         $elevesRetard  = SuiviFinancier::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->where('statut', 'en_retard')->count();
-        $totalEleves   = $elevesAJour + $elevesPartiel + $elevesRetard;
+        $totalEleves   = $elevesAJour + $elevesRetard;
 
         // Encaissements mensuels (12 derniers mois)
         $encaissementsParMois = Paiement::select(
@@ -82,7 +81,7 @@ class DashboardController extends Controller
         // Derniers paiements
         $derniersPaiements = Paiement::with(['inscription.eleve.user', 'inscription.classe'])
             ->whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))
-            ->orderByDesc('date_paiement')
+            ->orderByDesc('created_at')
             ->limit(8)
             ->get();
 
@@ -90,7 +89,7 @@ class DashboardController extends Controller
             'anneeActive',
             'totalDu', 'totalPaye', 'totalSolde', 'tauxRecouvrement',
             'paiementsAujourdhui', 'encaisseAujourdhui', 'encaisseMois',
-            'elevesAJour', 'elevesPartiel', 'elevesRetard', 'totalEleves',
+            'elevesAJour', 'elevesRetard', 'totalEleves',
             'moisLabels', 'moisData',
             'topClasses', 'parMode',
             'retards', 'derniersPaiements'

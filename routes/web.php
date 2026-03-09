@@ -138,6 +138,7 @@ Route::middleware(['auth', 'role:comptable'])->group(function () {
     Route::get('/comptable/paiements/search', [App\Http\Controllers\Comptable\PaiementController::class, 'search'])->name('comptable.paiements.search');
     Route::post('/comptable/paiements',       [App\Http\Controllers\Comptable\PaiementController::class, 'store'])->name('comptable.paiements.store');
     Route::get('/comptable/paiements',        [App\Http\Controllers\Comptable\PaiementController::class, 'index'])->name('comptable.paiements.index');
+    Route::get('/comptable/paiements/{paiement}/recu', [App\Http\Controllers\Comptable\PaiementController::class, 'telechargerRecu'])->name('comptable.paiements.recu');
        
     // Suivi
     Route::get('/comptable/suivi', fn() => view('comptable.suivi'))->name('comptable.suivi');

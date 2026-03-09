@@ -72,36 +72,30 @@ class PaiementController extends Controller
 
         $anneeActive = AnneeAcademique::active()->first();
 
-        // Créer le paiement
-
+        // Générer la référence automatiquement
         $reference = $request->reference;
         if (empty($reference)) {
             $count     = Paiement::whereDate('created_at', today())->count() + 1;
             $reference = 'PMT-' . now()->format('Ymd') . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
         }
 
-        Paiement::create([
+        // Créer le paiement et l'assigner à $paiement
+        $paiement = Paiement::create([
             'inscription_id' => $request->inscription_id,
             'comptable_id'   => Auth::user()->comptable->id,
             'montant'        => $request->montant,
             'mode_paiement'  => $request->mode_paiement,
             'date_paiement'  => $request->date_paiement,
-            'reference'      => $request->reference,
+            'reference'      => $reference, // <-- $reference et non $request->reference
         ]);
 
         // Mettre à jour le suivi financier
         $suivi = SuiviFinancier::where('inscription_id', $request->inscription_id)->first();
         if ($suivi) {
-            $nouveauPaye   = $suivi->total_paye + $request->montant;
-            $nouveauSolde  = $suivi->total_du - $nouveauPaye;
-            $nouveauSolde  = max(0, $nouveauSolde);
+            $nouveauPaye  = $suivi->total_paye + $request->montant;
+            $nouveauSolde = max(0, $suivi->total_du - $nouveauPaye);
 
-            $statut = 'en_retard';
-            if ($nouveauSolde <= 0) {
-                $statut = 'a_jour';
-            } elseif ($nouveauPaye > 0) {
-                $statut = 'partiel';
-            }
+            $statut = $nouveauSolde <= 0 ? 'solde' : 'en_retard';
 
             $suivi->update([
                 'total_paye'    => $nouveauPaye,
@@ -111,6 +105,25 @@ class PaiementController extends Controller
         }
 
         return redirect()->route('comptable.paiements.create')
-            ->with('success', 'Paiement enregistré avec succès.');
+            ->with('success', 'Paiement enregistré avec succès.')
+            ->with('paiement_id', $paiement->id);
+    }
+
+    public function telechargerRecu(Paiement $paiement)
+    {
+        $paiement->load(['inscription.eleve.user', 'inscription.classe.serie']);
+        $inscription = $paiement->inscription;
+        $eleve       = $inscription->eleve;
+        $suivi       = SuiviFinancier::where('inscription_id', $inscription->id)->first();
+        $comptable   = \App\Models\User::find($paiement->comptable->user_id);
+        $anneeActive = AnneeAcademique::active()->first();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('comptable.recu-pdf', compact(
+            'paiement', 'inscription', 'eleve', 'suivi', 'comptable', 'anneeActive'
+        ));
+
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream('recu-' . $paiement->reference . '.pdf');
     }
 }
