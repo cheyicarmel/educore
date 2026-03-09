@@ -126,4 +126,37 @@ class PaiementController extends Controller
 
         return $pdf->stream('recu-' . $paiement->reference . '.pdf');
     }
+
+
+    public function index(Request $request)
+    {
+        $anneeActive = AnneeAcademique::active()->first();
+
+        $query = Paiement::with(['inscription.eleve.user', 'inscription.classe'])
+            ->whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id));
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('inscription.eleve.user', function ($q) use ($search) {
+                $q->where('nom', 'like', "%{$search}%")
+                ->orWhere('prenom', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('classe')) {
+            $query->whereHas('inscription', fn($q) => $q->where('classe_id', $request->classe));
+        }
+
+        $paiements    = $query->orderByDesc('created_at')->paginate(15)->withQueryString();
+        $totalGeneral = Paiement::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->sum('montant');
+        $nombreTotal  = Paiement::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->count();
+
+        $classes = \App\Models\Classe::whereHas('inscriptions', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))
+            ->orderBy('nom')
+            ->get();
+
+        return view('comptable.paiements.index', compact(
+            'anneeActive', 'paiements', 'totalGeneral', 'nombreTotal', 'classes'
+        ));
+    }
 }

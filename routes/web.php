@@ -133,13 +133,17 @@ Route::middleware(['auth', 'role:comptable'])->group(function () {
     // Dashboard
     Route::get('/comptable/dashboard', [App\Http\Controllers\Comptable\DashboardController::class, 'index'])->name('comptable.dashboard');
     
-    // Paiements
+    // Enregistrement des paiements et generation des reçus
     Route::get('/comptable/paiements/creer',  [App\Http\Controllers\Comptable\PaiementController::class, 'create'])->name('comptable.paiements.create');
     Route::get('/comptable/paiements/search', [App\Http\Controllers\Comptable\PaiementController::class, 'search'])->name('comptable.paiements.search');
     Route::post('/comptable/paiements',       [App\Http\Controllers\Comptable\PaiementController::class, 'store'])->name('comptable.paiements.store');
     Route::get('/comptable/paiements',        [App\Http\Controllers\Comptable\PaiementController::class, 'index'])->name('comptable.paiements.index');
     Route::get('/comptable/paiements/{paiement}/recu', [App\Http\Controllers\Comptable\PaiementController::class, 'telechargerRecu'])->name('comptable.paiements.recu');
-       
+
+
+    // Historique des paiements
+    Route::get('/comptable/historique', [App\Http\Controllers\Comptable\PaiementController::class, 'index'])->name('comptable.paiements.index');
+
     // Suivi
     Route::get('/comptable/suivi', fn() => view('comptable.suivi'))->name('comptable.suivi');
     Route::get('/comptable/retards', fn() => view('comptable.retards'))->name('comptable.retards');
