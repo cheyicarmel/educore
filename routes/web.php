@@ -150,5 +150,7 @@ Route::middleware(['auth', 'role:comptable'])->group(function () {
     Route::get('/comptable/documents/rapport-global', [Comptable\DocumentController::class, 'rapportGlobal'])->name('comptable.documents.rapport-global');
 
     // Profil
-    Route::get('/comptable/profil', fn() => view('comptable.profil'))->name('comptable.profil');
+    Route::get('/comptable/profil', [Comptable\ProfilController::class, 'index'])->name('comptable.profil');
+    Route::put('/comptable/profil/infos', [Comptable\ProfilController::class, 'updateInfos'])->name('comptable.profil.infos');
+    Route::put('/comptable/profil/password', [Comptable\ProfilController::class, 'updatePassword'])->name('comptable.profil.password');
 });
