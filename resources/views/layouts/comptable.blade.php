@@ -69,7 +69,14 @@
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 40; }
         #overlay.show { display: block; }
 
-        #main { margin-left: 17rem; min-width: 0; transition: margin-left 0.25s ease; }
+        #main { 
+            margin-left: 17rem; 
+            min-width: 0; 
+            transition: margin-left 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
         #main.collapsed { margin-left: 4.5rem; }
         @media (max-width: 767px) { #main { margin-left: 0 !important; } }
     </style>
@@ -109,20 +116,11 @@
             <span class="lbl">Historique Paiements</span>
             <span class="tip">Historique Paiements</span>
         </a>
-        <a href="{{ route('comptable.suivi') }}"
-            class="nav-link {{ request()->routeIs('comptable.suivi') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
-            <span class="material-symbols-outlined shrink-0">account_balance_wallet</span>
-            <span class="lbl">Suivi Financier</span>
-            <span class="tip">Suivi Financier</span>
-        </a>
-        <a href="{{ route('comptable.retards') }}"
-            class="nav-link {{ request()->routeIs('comptable.retards') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
-            <span class="material-symbols-outlined shrink-0">warning</span>
-            <span class="lbl">Retards de Paiement</span>
-            <span class="tip">Retards de Paiement</span>
-        </a>
-        <a href="">
-            
+        <a href="{{ route('comptable.documents') }}"
+            class="nav-link {{ request()->routeIs('comptable.documents') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
+            <span class="material-symbols-outlined shrink-0">folder_open</span>
+            <span class="lbl">Documents Financiers</span>
+            <span class="tip">Documents Financiers</span>
         </a>
         <div class="pt-2 border-t border-slate-100">
             <a href="{{ route('comptable.profil') }}"
@@ -165,13 +163,6 @@
             <button id="toggle-collapse" class="hidden md:flex p-2 text-slate-500 hover:bg-slate-50 rounded-lg">
                 <span class="material-symbols-outlined">menu</span>
             </button>
-            {{-- Mobile logo --}}
-            <div class="md:hidden flex items-center gap-2">
-                <div class="bg-primary p-1.5 rounded-lg text-white">
-                    <span class="material-symbols-outlined text-base">school</span>
-                </div>
-                <span class="text-sm font-bold text-navy-900">EduCore</span>
-            </div>
         </div>
         <div class="flex items-center gap-2">
             <div class="hidden lg:flex flex-col text-right ml-2">
@@ -181,7 +172,7 @@
         </div>
     </header>
 
-    <div class="p-4 md:p-6 lg:p-8 space-y-6">
+    <div class="p-4 md:p-6 lg:p-8 space-y-6 flex-1">
         @yield('content')
     </div>
 

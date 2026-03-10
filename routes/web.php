@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Comptable;
 
 // Page de connexion
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -144,8 +145,10 @@ Route::middleware(['auth', 'role:comptable'])->group(function () {
     // Historique des paiements
     Route::get('/comptable/historique', [App\Http\Controllers\Comptable\PaiementController::class, 'index'])->name('comptable.paiements.index');
 
-    // Suivi
-    Route::get('/comptable/suivi', fn() => view('comptable.suivi'))->name('comptable.suivi');
-    Route::get('/comptable/retards', fn() => view('comptable.retards'))->name('comptable.retards');
+    // Documents financiers
+    Route::get('/comptable/documents', [Comptable\DocumentController::class, 'index'])->name('comptable.documents');
+    Route::get('/comptable/documents/rapport-global', [Comptable\DocumentController::class, 'rapportGlobal'])->name('comptable.documents.rapport-global');
+
+    // Profil
     Route::get('/comptable/profil', fn() => view('comptable.profil'))->name('comptable.profil');
 });
