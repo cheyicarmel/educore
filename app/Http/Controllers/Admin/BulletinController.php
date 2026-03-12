@@ -9,6 +9,7 @@ use App\Models\Bulletin;
 use App\Models\Classe;
 use App\Models\CoefficientMatiere;
 use App\Models\Inscription;
+use App\Models\Note;
 use App\Models\MoyenneAnnuelle;
 use App\Models\MoyenneMatiere;
 use App\Models\MoyenneSemestre;
@@ -170,12 +171,20 @@ class BulletinController extends Controller
             ->where('numero_semestre', $semestre)
             ->get()->keyBy('matiere_id');
 
+        // Récupérer toutes les notes brutes
+        $notesbrutes = Note::where('inscription_id', $inscription->id)
+            ->where('numero_semestre', $semestre)
+            ->get()
+            ->groupBy('matiere_id');
+
         $moyS = MoyenneSemestre::where('inscription_id', $inscription->id)
             ->where('numero_semestre', $semestre)
             ->first();
 
-        $detailMatieres = $attributions->map(function ($attr) use ($moyMatieres, $estPremierCycle) {
+        $detailMatieres = $attributions->map(function ($attr) use ($moyMatieres, $notesbrutes, $estPremierCycle) {
             $m     = $moyMatieres[$attr->matiere_id] ?? null;
+            $notes = $notesbrutes[$attr->matiere_id] ?? collect();
+
             $coeff = $estPremierCycle ? null : (CoefficientMatiere::where('matiere_id', $attr->matiere_id)
                 ->where('classe_id', $attr->classe_id)
                 ->first()?->coefficient ?? 1);
@@ -183,6 +192,11 @@ class BulletinController extends Controller
             return [
                 'matiere'                 => $attr->matiere->nom,
                 'coefficient'             => $coeff,
+                'interro1'                => $notes->firstWhere('type', 'interrogation1')?->valeur,
+                'interro2'                => $notes->firstWhere('type', 'interrogation2')?->valeur,
+                'interro3'                => $notes->firstWhere('type', 'interrogation3')?->valeur,
+                'devoir1'                 => $notes->firstWhere('type', 'devoir1')?->valeur,
+                'devoir2'                 => $notes->firstWhere('type', 'devoir2')?->valeur,
                 'moyenne_interrogations'  => $m?->moyenne_interrogations,
                 'moyenne_generale'        => $m?->moyenne_generale,
                 'moyenne_avec_coefficient'=> $m?->moyenne_avec_coefficient,
