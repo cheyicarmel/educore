@@ -51,7 +51,7 @@ class MaClassePrincipaleController extends Controller
         $inscriptionIds = $inscriptions->pluck('id');
         $parametres     = Parametre::instance();
 
-        // ── Valeurs par défaut pour TOUTES les variables
+        // Valeurs par défaut pour TOUTES les variables
         // Nécessaire car le compact() final a besoin de toutes les variables
         // peu importe quelle branche (semestrielle ou annuelle) est active
         $semestre                  = null;
@@ -68,7 +68,7 @@ class MaClassePrincipaleController extends Controller
         $peutCalculerAnnuel        = false;
         $elevesAnnuels             = collect();
 
-        // ── VUE SEMESTRE 1 ou 2 ───────────────────────────────────
+        // VUE SEMESTRE 1 ou 2 
         if ($vue === '1' || $vue === '2') {
             $semestre = (int) $vue;
 
@@ -105,18 +105,37 @@ class MaClassePrincipaleController extends Controller
                 ? round($moyennesSemestre->avg('valeur'), 2)
                 : null;
 
-            $elevesAvecStats = $inscriptions->map(function ($inscription) use ($moyennesSemestre, $parametres) {
-                $moy = $moyennesSemestre[$inscription->id] ?? null;
+            // Moyennes par matière pour chaque élève
+            $moyennesParMatiere = MoyenneMatiere::whereIn('inscription_id', $inscriptionIds)
+                ->where('numero_semestre', $semestre)
+                ->get()
+                ->groupBy('inscription_id');
+
+            $elevesAvecStats = $inscriptions->map(function ($inscription) use ($moyennesSemestre, $parametres, $moyennesParMatiere, $attributionsClasse) {
+                $moy        = $moyennesSemestre[$inscription->id] ?? null;
+                $moyMatieres = $moyennesParMatiere[$inscription->id] ?? collect();
+
+                $detailMatieres = $attributionsClasse->map(function ($attr) use ($moyMatieres) {
+                    $m = $moyMatieres->firstWhere('matiere_id', $attr->matiere_id);
+                    return [
+                        'matiere_id'              => $attr->matiere_id,
+                        'matiere'                 => $attr->matiere->nom,
+                        'moyenne_generale'        => $m?->moyenne_generale,
+                        'moyenne_avec_coefficient'=> $m?->moyenne_avec_coefficient,
+                    ];
+                });
+
                 return [
-                    'eleve'   => $inscription->eleve->user,
-                    'moyenne' => $moy?->valeur,
-                    'rang'    => $moy?->rang,
-                    'mention' => $moy ? $parametres->getMention((float) $moy->valeur) : null,
+                    'eleve'          => $inscription->eleve->user,
+                    'moyenne'        => $moy?->valeur,
+                    'rang'           => $moy?->rang,
+                    'mention'        => $moy ? $parametres->getMention((float) $moy->valeur) : null,
+                    'detail_matieres'=> $detailMatieres,
                 ];
             })->sortBy('rang')->values();
         }
 
-        // ── VUE ANNUELLE ──────────────────────────────────────────
+        // VUE ANNUELLE
         elseif ($vue === 'annuel') {
             $moyennesAnnuelles = MoyenneAnnuelle::whereIn('inscription_id', $inscriptionIds)
                 ->get()
@@ -149,7 +168,6 @@ class MaClassePrincipaleController extends Controller
             })->sortBy('rang')->values();
         }
 
-        // ── UN SEUL return view() avec toutes les variables ───────
         return view('enseignant.ma-classe-principale', compact(
             'classe', 'effectif', 'anneeActive', 'vue', 'semestre',
             'statutsParMatiere', 'totalMatieres', 'matieresSaisieComplete',

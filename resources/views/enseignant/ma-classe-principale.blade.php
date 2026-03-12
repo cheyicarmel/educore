@@ -157,34 +157,69 @@
 
     {{-- Tableau élèves semestre --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-4 md:p-5 border-b border-slate-200">
+        <div class="p-4 md:p-5 border-b border-slate-200 flex items-center justify-between">
             <h2 class="text-base font-bold text-navy-900">Élèves — Semestre {{ $vue }}</h2>
+            <span class="text-xs text-navy-700 font-medium">Scroll horizontal pour voir toutes les matières →</span>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left" style="min-width: 560px;">
+            <table class="w-full text-left" style="min-width: {{ 400 + (count($statutsParMatiere) * 100) }}px;">
                 <thead>
-                    {{-- PAS de data-inscription ici --}}
                     <tr class="bg-slate-50">
-                        <th class="px-5 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Élève</th>
-                        <th class="px-4 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider text-center">Rang</th>
-                        <th class="px-4 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider text-center">Moyenne</th>
-                        <th class="px-4 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider text-center">Mention</th>
+                        <th class="px-5 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider sticky left-0 bg-slate-50 z-10" style="min-width:180px;">Élève</th>
+                        @if(isset($elevesAvecStats[0]['detail_matieres']))
+                            @foreach($elevesAvecStats[0]['detail_matieres'] as $dm)
+                            <th class="px-3 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider text-center" style="min-width:90px;">
+                                {{ \Illuminate\Support\Str::limit($dm['matiere'], 8) }}
+                            </th>
+                            @endforeach
+                        @endif
+                        <th class="px-4 py-3 text-[11px] font-bold text-primary uppercase tracking-wider text-center"
+                            style="min-width:80px; background: #f0f7ff;">
+                            Moy. Gén.
+                        </th>
+                        <th class="px-4 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider text-center" style="min-width:60px;">Rang</th>
+                        <th class="px-4 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider text-center" style="min-width:90px;">Mention</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($elevesAvecStats as $item)
                     @php $eleve = $item['eleve']; @endphp
                     <tr class="hover:bg-slate-50 transition-colors" data-inscription="{{ $eleve->id }}">
-                        <td class="px-5 py-3">
+                        <td class="px-5 py-3 sticky left-0 bg-white z-10">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                                     <span class="text-[10px] font-bold text-primary">
                                         {{ strtoupper(substr($eleve->prenom, 0, 1) . substr($eleve->nom, 0, 1)) }}
                                     </span>
                                 </div>
-                                {{-- data-eleve-nom ici --}}
-                                <p class="text-sm font-semibold text-navy-900" data-eleve-nom>{{ $eleve->prenom }} {{ $eleve->nom }}</p>
+                                <p class="text-sm font-semibold text-navy-900 whitespace-nowrap" data-eleve-nom>{{ $eleve->prenom }} {{ $eleve->nom }}</p>
                             </div>
+                        </td>
+                        @foreach($item['detail_matieres'] as $dm)
+                        <td class="px-3 py-3 text-center">
+                            @if($dm['moyenne_generale'] !== null)
+                            <div class="flex flex-col items-center">
+                                <span class="text-sm font-bold {{ $dm['moyenne_generale'] >= 10 ? 'text-emerald-600' : 'text-rose-500' }}">
+                                    {{ number_format($dm['moyenne_generale'], 2) }}
+                                </span>
+                                @if($dm['moyenne_avec_coefficient'] !== null)
+                                <span class="text-[10px] text-slate-400">({{ number_format($dm['moyenne_avec_coefficient'], 2) }})</span>
+                                @endif
+                            </div>
+                            @else
+                            <span class="text-sm text-slate-300">—</span>
+                            @endif
+                        </td>
+                        @endforeach
+                        <td class="px-4 py-3 text-center" style="background: #f0f7ff;">
+                            @if($item['moyenne'] !== null)
+                            <span class="inline-flex items-center justify-center w-14 h-7 rounded-lg text-sm font-extrabold
+                                {{ $item['moyenne'] >= 10 ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white' }}">
+                                {{ number_format($item['moyenne'], 2) }}
+                            </span>
+                            @else
+                            <span class="text-sm text-slate-400">—</span>
+                            @endif
                         </td>
                         <td class="px-4 py-3 text-center">
                             @if($item['rang'])
@@ -194,28 +229,19 @@
                             @endif
                         </td>
                         <td class="px-4 py-3 text-center">
-                            @if($item['moyenne'] !== null)
-                            <span class="text-sm font-extrabold {{ $item['moyenne'] >= 10 ? 'text-emerald-600' : 'text-rose-500' }}">
-                                {{ number_format($item['moyenne'], 2) }}
-                            </span>
-                            @else
-                            <span class="text-sm text-slate-400">—</span>
-                            @endif
-                        </td>
-                        <td class="px-4 py-3 text-center">
                             @if($item['mention'])
                             @php
                                 $mentionColors = [
-                                    'Excellent'  => 'bg-yellow-100 text-yellow-700',
-                                    'Très bien'  => 'bg-violet-100 text-violet-700',
-                                    'Bien'       => 'bg-emerald-100 text-emerald-700',
-                                    'Assez bien' => 'bg-blue-100 text-blue-700',
-                                    'Passable'   => 'bg-amber-100 text-amber-700',
-                                    'Insuffisant'=> 'bg-rose-100 text-rose-700',
+                                    'Excellent'   => 'bg-yellow-100 text-yellow-700',
+                                    'Très bien'   => 'bg-violet-100 text-violet-700',
+                                    'Bien'        => 'bg-emerald-100 text-emerald-700',
+                                    'Assez bien'  => 'bg-blue-100 text-blue-700',
+                                    'Passable'    => 'bg-amber-100 text-amber-700',
+                                    'Insuffisant' => 'bg-rose-100 text-rose-700',
                                 ];
                                 $color = $mentionColors[$item['mention']] ?? 'bg-slate-100 text-slate-700';
                             @endphp
-                            <span class="inline-flex px-2.5 py-1 {{ $color }} text-[10px] font-bold rounded-full">
+                            <span class="inline-flex px-2.5 py-1 {{ $color }} text-[10px] font-bold rounded-full whitespace-nowrap">
                                 {{ $item['mention'] }}
                             </span>
                             @else
@@ -225,7 +251,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-5 py-10 text-center text-sm text-slate-400 font-semibold">Aucun élève inscrit.</td>
+                        <td colspan="99" class="px-5 py-10 text-center text-sm text-slate-400 font-semibold">Aucun élève inscrit.</td>
                     </tr>
                     @endforelse
                 </tbody>
