@@ -34,7 +34,7 @@
         @endforeach
     </div>
 
-    {{-- ============ VUE SEMESTRE 1 & 2 ============ --}}
+    {{--  VUE SEMESTRE 1 & 2  --}}
     @if($vue === '1' || $vue === '2')
 
     {{-- KPIs --}}

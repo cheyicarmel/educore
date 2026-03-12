@@ -10,7 +10,7 @@ class NotesSeeder extends Seeder
     public function run(): void
     {
         $anneeId   = 3;
-        $semestre  = 1;
+        $semestre  = 2;
         $classeIds = [16,17,18,19,20,21,22,23,24,25,26,27,28,29,30];
 
         DB::table('notes')
