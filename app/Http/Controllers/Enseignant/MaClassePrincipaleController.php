@@ -304,4 +304,113 @@ class MaClassePrincipaleController extends Controller
         return redirect()->route('enseignant.ma-classe', ['vue' => $vue])
             ->with('success', 'Moyennes calculées et classement effectué avec succès.');
     }
+
+    public function genererReleve(Request $request)
+    {
+        $request->validate([
+            'classe_id' => 'required|exists:classes,id',
+            'semestre'  => 'required|in:1,2,annuel',
+        ]);
+
+        $anneeActive = AnneeAcademique::active()->first();
+        $enseignant  = Auth::user()->enseignant;
+        $classe      = \App\Models\Classe::with('serie')->findOrFail($request->classe_id);
+
+        // Vérifier que c'est bien le prof principal
+        $estProfPrincipal = Attribution::where('enseignant_id', $enseignant->id)
+            ->where('classe_id', $classe->id)
+            ->where('annee_academique_id', $anneeActive?->id)
+            ->where('est_prof_principal', true)
+            ->exists();
+
+        if (!$estProfPrincipal) {
+            return back()->with('error', 'Action non autorisée.');
+        }
+
+        $inscriptions = Inscription::where('classe_id', $classe->id)
+            ->where('annee_academique_id', $anneeActive?->id)
+            ->with('eleve.user')
+            ->get();
+
+        $inscriptionIds = $inscriptions->pluck('id');
+
+        $attributions = Attribution::where('classe_id', $classe->id)
+            ->where('annee_academique_id', $anneeActive?->id)
+            ->with('matiere')
+            ->get();
+
+        $parametres = \App\Models\Parametre::instance();
+
+        if ($request->semestre === 'annuel') {
+
+            $moyS1 = MoyenneSemestre::whereIn('inscription_id', $inscriptionIds)
+                ->where('numero_semestre', 1)->get()->keyBy('inscription_id');
+            $moyS2 = MoyenneSemestre::whereIn('inscription_id', $inscriptionIds)
+                ->where('numero_semestre', 2)->get()->keyBy('inscription_id');
+            $moyAnnuelles = MoyenneAnnuelle::whereIn('inscription_id', $inscriptionIds)
+                ->get()->keyBy('inscription_id');
+
+            $eleves = $inscriptions->map(function ($inscription) use ($moyS1, $moyS2, $moyAnnuelles) {
+                $annuelle = $moyAnnuelles[$inscription->id] ?? null;
+                return [
+                    'eleve'        => $inscription->eleve->user,
+                    'moy_s1'       => $moyS1[$inscription->id]?->valeur ?? null,
+                    'moy_s2'       => $moyS2[$inscription->id]?->valeur ?? null,
+                    'moy_annuelle' => $annuelle?->valeur,
+                    'rang'         => $annuelle?->rang,
+                    'decision'     => $annuelle?->decision,
+                ];
+            })->sortBy(fn($i) => $i['eleve']->nom . ' ' . $i['eleve']->prenom)->values();
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('enseignant.pdf.releve-annuel', compact(
+                'classe', 'anneeActive', 'eleves', 'parametres'
+            ));
+
+            $pdf->setPaper('A4', 'landscape');
+            return $pdf->stream('releve-annuel-' . $classe->nom . '.pdf');
+
+        } else {
+
+            $semestre = (int) $request->semestre;
+
+            $moyennesSemestre = MoyenneSemestre::whereIn('inscription_id', $inscriptionIds)
+                ->where('numero_semestre', $semestre)
+                ->get()->keyBy('inscription_id');
+
+            $moyennesParMatiere = MoyenneMatiere::whereIn('inscription_id', $inscriptionIds)
+                ->where('numero_semestre', $semestre)
+                ->get()->groupBy('inscription_id');
+
+            $parametresApp = \App\Models\Parametre::instance();
+
+            $eleves = $inscriptions->map(function ($inscription) use ($moyennesSemestre, $moyennesParMatiere, $attributions, $parametresApp) {
+                $moy         = $moyennesSemestre[$inscription->id] ?? null;
+                $moyMatieres = $moyennesParMatiere[$inscription->id] ?? collect();
+
+                $detailMatieres = $attributions->map(function ($attr) use ($moyMatieres) {
+                    $m = $moyMatieres->firstWhere('matiere_id', $attr->matiere_id);
+                    return [
+                        'matiere'                 => $attr->matiere->nom,
+                        'moyenne_generale'        => $m?->moyenne_generale,
+                        'moyenne_avec_coefficient'=> $m?->moyenne_avec_coefficient,
+                    ];
+                });
+
+                return [
+                    'eleve'           => $inscription->eleve->user,
+                    'moyenne'         => $moy?->valeur,
+                    'rang'            => $moy?->rang,
+                    'mention'         => $moy ? $parametresApp->getMention((float) $moy->valeur) : null,
+                    'detail_matieres' => $detailMatieres,
+                ];
+            })->sortBy(fn($i) => $i['eleve']->nom . ' ' . $i['eleve']->prenom)->values();
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('enseignant.pdf.releve-semestre', compact(
+                'classe', 'anneeActive', 'semestre', 'eleves', 'attributions', 'parametres'
+            ));
+
+            $pdf->setPaper('A4', 'landscape');
+            return $pdf->stream('releve-S' . $semestre . '-' . $classe->nom . '.pdf');
+        }
+    }
 }

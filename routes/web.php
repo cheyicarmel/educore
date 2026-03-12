@@ -96,7 +96,7 @@ Route::middleware(['auth', 'role:enseignant'])->group(function () {
     // Classe principale
     Route::get('/enseignant/ma-classe',              [App\Http\Controllers\Enseignant\MaClassePrincipaleController::class, 'index'])->name('enseignant.ma-classe');
     Route::post('/enseignant/ma-classe/calculer',    [App\Http\Controllers\Enseignant\MaClassePrincipaleController::class, 'calculerMoyennes'])->name('enseignant.ma-classe.calculer-moyennes');
-    Route::post('/enseignant/ma-classe/releve',      [App\Http\Controllers\Enseignant\MaClassePrincipaleController::class, 'genererReleve'])->name('enseignant.ma-classe.generer-releve');
+    Route::post('/enseignant/ma-classe/generer-releve',      [App\Http\Controllers\Enseignant\MaClassePrincipaleController::class, 'genererReleve'])->name('enseignant.ma-classe.generer-releve');
 
     // Profil
     Route::get('/enseignant/profil', [App\Http\Controllers\Enseignant\ProfilController::class, 'index'])->name('enseignant.profil');
