@@ -73,7 +73,7 @@ class EnseignantController extends Controller
             // Envoyer les identifiants par email
             Mail::raw(
                 "Bonjour {$request->prenom} {$request->nom},\n\n" .
-                "Votre compte EduCore a été créé.\n\n" .
+                "Votre compte enseignant EduCore a été créé.\n\n" .
                 "Email : {$request->email}\n" .
                 "Mot de passe : {$motDePasse}\n\n" .
                 "Veuillez vous connecter et changer votre mot de passe.\n\n" .
