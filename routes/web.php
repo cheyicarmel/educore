@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Comptable;
+use App\Http\Controllers\Admin;
 
 // Page de connexion
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -75,6 +76,11 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     // Paramètres
     Route::get('/admin/parametres',  [App\Http\Controllers\Admin\ParametreController::class, 'index'])->name('admin.parametres.index');
     Route::put('/admin/parametres',  [App\Http\Controllers\Admin\ParametreController::class, 'update'])->name('admin.parametres.update');
+
+    // Bulletins
+    Route::get('/admin/bulletins', [Admin\BulletinController::class, 'index'])->name('admin.bulletins.index');
+    Route::post('/admin/bulletins/publier', [Admin\BulletinController::class, 'publier'])->name('admin.bulletins.publier');
+    Route::post('/admin/bulletins/depublier', [Admin\BulletinController::class, 'depublier'])->name('admin.bulletins.depublier');
 });
 
 

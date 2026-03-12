@@ -15,6 +15,9 @@ class Classe extends Model
         'nom',
         'niveau',
         'cycle',
+        'bulletins_publies_s1',
+        'bulletins_publies_s2', 
+        'bulletins_publies_annuel',
     ];
 
     // Année académique de la classe
