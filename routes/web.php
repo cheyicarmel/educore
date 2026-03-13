@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Comptable;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\Eleve;
 
 // Page de connexion
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -123,8 +124,8 @@ Route::middleware(['auth', 'role:eleve'])->group(function () {
 
     // Bulletins
     Route::get('/eleve/bulletins', [App\Http\Controllers\Eleve\BulletinsController::class, 'index'])->name('eleve.bulletins');
-    Route::get('/eleve/bulletins/{id}/download', fn($id) => back())->name('eleve.bulletins.download');
-    
+    Route::get('/eleve/bulletins/{id}/download', [Eleve\BulletinsController::class, 'download'])->name('eleve.bulletins.download');  
+
     // Profil
     Route::get('/eleve/profil',  [App\Http\Controllers\Eleve\ProfilController::class, 'index'])->name('eleve.profil');
     Route::put('/eleve/profil',  [App\Http\Controllers\Eleve\ProfilController::class, 'update'])->name('eleve.profil.update');
