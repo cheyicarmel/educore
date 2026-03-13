@@ -139,57 +139,60 @@
             <tr>
                 <td class="left">{{ $dm['matiere'] }}</td>
                 @if(!$estPremierCycle)
-                <td>{{ $dm['coefficient'] ?? '—' }}</td>
+                    <td>{{ $dm['coefficient'] ?? '—' }}</td>
                 @endif
                 {{-- Interrogations --}}
                 @foreach(['interro1','interro2','interro3'] as $key)
-                <td>
-                    @if($dm[$key] !== null)
-                    <span class="{{ $dm[$key] >= 10 ? 'ok' : 'ko' }}">{{ number_format($dm[$key], 2) }}</span>
-                    @else —
-                    @endif
-                </td>
+                    <td>
+                        @if($dm[$key] !== null)
+                            <span class="{{ $dm[$key] >= 10 ? 'ok' : 'ko' }}">{{ number_format($dm[$key], 2) }}</span>
+                        @else 
+                            —
+                        @endif
+                    </td>
                 @endforeach
                 {{-- Devoirs --}}
                 @foreach(['devoir1','devoir2'] as $key)
-                <td>
-                    @if($dm[$key] !== null)
-                    <span class="{{ $dm[$key] >= 10 ? 'ok' : 'ko' }}">{{ number_format($dm[$key], 2) }}</span>
-                    @else —
-                    @endif
-                </td>
+                    <td>
+                        @if($dm[$key] !== null)
+                            <span class="{{ $dm[$key] >= 10 ? 'ok' : 'ko' }}">{{ number_format($dm[$key], 2) }}</span>
+                        @else 
+                            —
+                        @endif
+                    </td>
                 @endforeach
                 {{-- Moy interro --}}
                 <td class="moy-interro">
                     @if($dm['moyenne_interrogations'] !== null)
-                    <span class="{{ $dm['moyenne_interrogations'] >= 10 ? 'ok' : 'ko' }}">{{ number_format($dm['moyenne_interrogations'], 2) }}</span>
-                    @else —
+                        <span class="{{ $dm['moyenne_interrogations'] >= 10 ? 'ok' : 'ko' }}">{{ number_format($dm['moyenne_interrogations'], 2) }}</span>
+                    @else 
+                        —
                     @endif
                 </td>
                 {{-- Moy générale --}}
                 <td class="moy-gen">
                     @if($dm['moyenne_generale'] !== null)
-                    <span class="{{ $dm['moyenne_generale'] >= 10 ? 'ok' : 'ko' }}">{{ number_format($dm['moyenne_generale'], 2) }}</span>
-                    @else —
+                        <span class="{{ $dm['moyenne_generale'] >= 10 ? 'ok' : 'ko' }}">{{ number_format($dm['moyenne_generale'], 2) }}</span>
+                    @else 
+                        —
                     @endif
                 </td>
                 {{-- Moy × coef --}}
                 @if(!$estPremierCycle)
-                <td class="moy-coef">
-                    @if($dm['moyenne_avec_coefficient'] !== null)
-                    {{ number_format($dm['moyenne_avec_coefficient'], 2) }}
-                    @else —
-                    @endif
-                </td>
+                    <td class="moy-coef">
+                        @if($dm['moyenne_avec_coefficient'] !== null)
+                            {{ number_format($dm['moyenne_avec_coefficient'], 2) }}
+                        @else 
+                            —
+                        @endif
+                    </td>
                 @endif
                 {{-- Appréciation --}}
                 <td>
                     @if($dm['moyenne_generale'] !== null)
-                    @php
-                        $v = $dm['moyenne_generale'];
-                        echo $v >= 16 ? 'Excellent' : ($v >= 14 ? 'Très bien' : ($v >= 12 ? 'Bien' : ($v >= 10 ? 'Assez bien' : ($v >= 8 ? 'Passable' : 'Insuffisant'))));
-                    @endphp
-                    @else —
+                        {{ $parametres->getMention((float) $dm['moyenne_generale']) }}
+                    @else 
+                        —
                     @endif
                 </td>
             </tr>

@@ -95,7 +95,7 @@
                 <div class="py-4 text-center">
                     <span class="material-symbols-outlined text-slate-300 text-4xl">hourglass_empty</span>
                     <p class="text-xs font-semibold text-slate-400 mt-2">
-                        Les moyennes n'ont pas encore été calculées pour cette période.
+                        Bulletin pas encore disponible.<br>Revenez plus tard.
                     </p>
                 </div>
                 @endif

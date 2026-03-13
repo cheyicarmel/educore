@@ -177,9 +177,9 @@
                 </td>
                 <td>
                     @if($moy_s1 !== null)
-                    @php $app1 = $moy_s1 >= 16 ? 'Excellent' : ($moy_s1 >= 14 ? 'Très bien' : ($moy_s1 >= 12 ? 'Bien' : ($moy_s1 >= 10 ? 'Assez bien' : ($moy_s1 >= 8 ? 'Passable' : 'Insuffisant')))); @endphp
-                    {{ $app1 }}
-                    @else —
+                        {{ $parametres->getMention((float) $moy_s1) }}
+                    @else 
+                        —
                     @endif
                 </td>
             </tr>
@@ -187,15 +187,16 @@
                 <td class="left"><strong>Semestre 2</strong></td>
                 <td>
                     @if($moy_s2 !== null)
-                    <span class="{{ $moy_s2 >= 10 ? 'ok' : 'ko' }}">{{ number_format($moy_s2, 2) }} / 20</span>
-                    @else —
+                        <span class="{{ $moy_s2 >= 10 ? 'ok' : 'ko' }}">{{ number_format($moy_s2, 2) }} / 20</span>
+                    @else 
+                        —
                     @endif
                 </td>
                 <td>
                     @if($moy_s2 !== null)
-                    @php $app2 = $moy_s2 >= 16 ? 'Excellent' : ($moy_s2 >= 14 ? 'Très bien' : ($moy_s2 >= 12 ? 'Bien' : ($moy_s2 >= 10 ? 'Assez bien' : ($moy_s2 >= 8 ? 'Passable' : 'Insuffisant')))); @endphp
-                    {{ $app2 }}
-                    @else —
+                        {{ $parametres->getMention((float) $moy_s2) }}
+                    @else 
+                        —
                     @endif
                 </td>
             </tr>
