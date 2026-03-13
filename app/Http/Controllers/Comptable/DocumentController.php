@@ -52,9 +52,11 @@ class DocumentController extends Controller
 
         $nombrePaiements = Paiement::whereHas('inscription', fn($q) => $q->where('annee_academique_id', $anneeActive?->id))->count();
 
+        $parametres = \App\Models\Parametre::instance();
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('comptable.pdf.rapport-global', compact(
             'anneeActive', 'totalDu', 'totalPaye', 'totalSolde', 'tauxRecouvrement',
-            'elevesAJour', 'elevesRetard', 'totalEleves', 'parClasse', 'nombrePaiements'
+            'elevesAJour', 'elevesRetard', 'totalEleves', 'parClasse', 'nombrePaiements', 'parametres'
         ));
 
         $pdf->setPaper('A4', 'portrait');

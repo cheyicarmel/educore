@@ -7,7 +7,6 @@
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1a1a2e; background: #fff; }
         .page { padding: 28px 36px; }
 
-        /* En-tête */
         .header-table { width: 100%; border-bottom: 3px solid #2b6cee; padding-bottom: 14px; margin-bottom: 16px; }
         .school-name { font-size: 20px; font-weight: 800; color: #2b6cee; }
         .school-sub { font-size: 9px; color: #4c669a; margin-top: 2px; }
@@ -16,14 +15,12 @@
         .recu-ref { font-size: 11px; font-weight: 700; color: #2b6cee; text-align: right; margin-top: 4px; }
         .recu-date { font-size: 10px; color: #4c669a; text-align: right; margin-top: 2px; }
 
-        /* Barre statut */
         .status-bar { width: 100%; background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 6px; margin-bottom: 16px; }
         .status-bar td { padding: 8px 14px; font-size: 10px; }
         .status-label { color: #4c669a; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .status-value-ok { color: #16a34a; font-size: 12px; font-weight: 800; text-align: right; }
         .status-value-ko { color: #dc2626; font-size: 12px; font-weight: 800; text-align: right; }
 
-        /* Sections infos */
         .section-title { font-size: 8px; font-weight: 800; color: #4c669a; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 6px; }
         .info-table { width: 100%; }
         .info-table td { padding: 4px 0; vertical-align: top; }
@@ -31,13 +28,11 @@
         .info-val { font-size: 9px; font-weight: 700; color: #0d121b; text-align: right; }
         .info-separator { border-bottom: 1px dashed #f1f5f9; }
 
-        /* Bloc montant */
         .amount-block { background: #2b6cee; border-radius: 8px; padding: 14px 20px; margin: 14px 0; text-align: center; }
         .amount-label { font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 1px; }
         .amount-value { font-size: 26px; font-weight: 800; color: #fff; margin-top: 4px; }
         .amount-currency { font-size: 12px; color: rgba(255,255,255,0.8); }
 
-        /* Récap solde */
         .solde-table { width: 100%; border-collapse: separate; border-spacing: 6px; margin-bottom: 14px; }
         .solde-cell { padding: 8px 10px; border-radius: 6px; text-align: center; }
         .solde-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 3px; }
@@ -56,19 +51,16 @@
         .cell-restant-ko .solde-label { color: #c2410c; }
         .cell-restant-ko .solde-value { color: #ea580c; }
 
-        /* Signatures */
         .sig-table { width: 100%; border-collapse: separate; border-spacing: 8px; margin-top: 18px; }
         .sig-cell { border: 1px dashed #cbd5e1; border-radius: 6px; padding: 10px 12px; vertical-align: top; width: 33.33%; height: 90px; }
         .sig-cell-label { font-size: 8px; font-weight: 700; color: #4c669a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; margin-bottom: 6px; }
         .sig-name { font-size: 10px; font-weight: 700; color: #0d121b; }
         .sig-role { font-size: 8px; color: #4c669a; margin-top: 2px; }
 
-        /* Footer */
         .footer { margin-top: 20px; padding-top: 10px; border-top: 1px solid #e2e8f0; text-align: center; }
         .footer-main { font-size: 8px; color: #94a3b8; }
         .footer-mention { font-size: 7px; color: #cbd5e1; margin-top: 3px; }
 
-        /* Watermark */
         .watermark { position: fixed; bottom: 100px; right: 30px; opacity: 0.05; font-size: 55px; font-weight: 900; color: #10b981; transform: rotate(-30deg); text-transform: uppercase; letter-spacing: 4px; }
     </style>
 </head>
@@ -83,8 +75,17 @@
     <table class="header-table">
         <tr>
             <td style="width:55%; vertical-align:top;">
-                <div class="school-name">EduCore</div>
-                <div class="school-sub">Système de Gestion Scolaire</div>
+                @if($parametres->logo)
+                <img src="{{ public_path('storage/' . $parametres->logo) }}" style="height:38px; margin-bottom:4px; display:block;"/>
+                @endif
+                <div class="school-name">{{ $parametres->nom_etablissement }}</div>
+                @if($parametres->slogan)
+                <div class="school-sub"><em>{{ $parametres->slogan }}</em></div>
+                @endif
+                <div class="school-sub">{{ $parametres->adresse ?? '' }}{{ $parametres->adresse ? ' — ' : '' }}{{ $parametres->ville }}, {{ $parametres->pays }}</div>
+                @if($parametres->telephone)
+                <div class="school-sub">Tél : {{ $parametres->telephone }}{{ $parametres->telephone2 ? ' / ' . $parametres->telephone2 : '' }}</div>
+                @endif
                 <div class="school-year">{{ $anneeActive?->libelle }}</div>
             </td>
             <td style="width:45%; vertical-align:top;">
@@ -201,7 +202,7 @@
             <td class="sig-cell">
                 <div class="sig-cell-label">Signature du Comptable</div>
                 <div class="sig-name">{{ $comptable->prenom }} {{ $comptable->nom }}</div>
-                <div class="sig-role">Comptable — EduCore</div>
+                <div class="sig-role">Comptable — {{ $parametres->nom_etablissement }}</div>
             </td>
             <td class="sig-cell">
                 <div class="sig-cell-label">Cachet de l'établissement</div>
@@ -215,7 +216,7 @@
     {{-- FOOTER --}}
     <div class="footer">
         <div class="footer-main">Ce reçu constitue une preuve officielle de paiement. Conservez-le précieusement.</div>
-        <div class="footer-mention">EduCore — Système de Gestion Scolaire · Généré le {{ now()->format('d/m/Y à H:i') }}</div>
+        <div class="footer-mention">{{ $parametres->nom_etablissement }} · {{ $parametres->ville }}, {{ $parametres->pays }} · Généré le {{ now()->format('d/m/Y à H:i') }}</div>
     </div>
 
 </div>

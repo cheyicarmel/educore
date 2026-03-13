@@ -7,7 +7,6 @@
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1a1a2e; background: #fff; }
         .page { padding: 28px 36px; }
 
-        /* En-tête */
         .header-table { width: 100%; border-bottom: 3px solid #2b6cee; padding-bottom: 14px; margin-bottom: 20px; }
         .school-name { font-size: 20px; font-weight: 800; color: #2b6cee; }
         .school-sub { font-size: 9px; color: #4c669a; margin-top: 2px; }
@@ -15,7 +14,6 @@
         .doc-title { font-size: 17px; font-weight: 800; color: #0d121b; text-transform: uppercase; letter-spacing: 1px; text-align: right; }
         .doc-date { font-size: 10px; color: #4c669a; text-align: right; margin-top: 4px; }
 
-        /* KPIs */
         .kpi-table { width: 100%; border-collapse: separate; border-spacing: 6px; margin-bottom: 20px; }
         .kpi-cell { padding: 12px 14px; border-radius: 8px; text-align: center; }
         .kpi-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
@@ -37,17 +35,14 @@
         .cell-violet .kpi-label { color: #6d28d9; }
         .cell-violet .kpi-value { color: #7c3aed; }
 
-        /* Statuts */
         .statuts-table { width: 100%; border-collapse: separate; border-spacing: 6px; margin-bottom: 20px; }
         .statut-cell { padding: 10px 14px; border-radius: 8px; text-align: center; }
         .statut-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px; }
         .statut-value { font-size: 20px; font-weight: 800; display: block; }
         .statut-sub { font-size: 8px; display: block; margin-top: 2px; }
 
-        /* Section titre */
         .section-title { font-size: 9px; font-weight: 800; color: #4c669a; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 10px; }
 
-        /* Tableau classes */
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table thead tr { background: #f8fafc; }
         .data-table thead th { padding: 8px 10px; font-size: 8px; font-weight: 800; color: #4c669a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; }
@@ -62,12 +57,10 @@
         .data-table tfoot td { padding: 8px 10px; font-size: 10px; font-weight: 800; color: #1e40af; }
         .data-table tfoot td.right { text-align: right; }
 
-        /* Badge taux */
         .badge-ok { background: #dcfce7; color: #15803d; padding: 2px 7px; border-radius: 10px; font-size: 9px; font-weight: 700; }
         .badge-mid { background: #fef9c3; color: #a16207; padding: 2px 7px; border-radius: 10px; font-size: 9px; font-weight: 700; }
         .badge-ko { background: #fee2e2; color: #b91c1c; padding: 2px 7px; border-radius: 10px; font-size: 9px; font-weight: 700; }
 
-        /* Footer */
         .footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #e2e8f0; text-align: center; }
         .footer-main { font-size: 8px; color: #94a3b8; }
         .footer-mention { font-size: 7px; color: #cbd5e1; margin-top: 3px; }
@@ -80,8 +73,17 @@
     <table class="header-table">
         <tr>
             <td style="width:55%; vertical-align:top;">
-                <div class="school-name">EduCore</div>
-                <div class="school-sub">Système de Gestion Scolaire</div>
+                @if($parametres->logo)
+                <img src="{{ public_path('storage/' . $parametres->logo) }}" style="height:38px; margin-bottom:4px; display:block;"/>
+                @endif
+                <div class="school-name">{{ $parametres->nom_etablissement }}</div>
+                @if($parametres->slogan)
+                <div class="school-sub"><em>{{ $parametres->slogan }}</em></div>
+                @endif
+                <div class="school-sub">{{ $parametres->adresse ?? '' }}{{ $parametres->adresse ? ' — ' : '' }}{{ $parametres->ville }}, {{ $parametres->pays }}</div>
+                @if($parametres->telephone)
+                <div class="school-sub">Tél : {{ $parametres->telephone }}{{ $parametres->telephone2 ? ' / ' . $parametres->telephone2 : '' }}</div>
+                @endif
                 <div class="school-year">{{ $anneeActive?->libelle }}</div>
             </td>
             <td style="width:45%; vertical-align:top;">
@@ -185,8 +187,8 @@
 
     {{-- FOOTER --}}
     <div class="footer">
-        <div class="footer-main">Document généré automatiquement par EduCore — Ne constitue pas un document contractuel.</div>
-        <div class="footer-mention">EduCore · Système de Gestion Scolaire · {{ now()->format('d/m/Y à H:i') }}</div>
+        <div class="footer-main">Document généré automatiquement — Ne constitue pas un document contractuel.</div>
+        <div class="footer-mention">{{ $parametres->nom_etablissement }} · {{ $parametres->ville }}, {{ $parametres->pays }} · {{ now()->format('d/m/Y à H:i') }}</div>
     </div>
 
 </div>

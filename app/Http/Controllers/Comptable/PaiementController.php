@@ -117,13 +117,13 @@ class PaiementController extends Controller
         $suivi       = SuiviFinancier::where('inscription_id', $inscription->id)->first();
         $comptable   = \App\Models\User::find($paiement->comptable->user_id);
         $anneeActive = AnneeAcademique::active()->first();
+        $parametres  = \App\Models\Parametre::instance();
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('comptable.recu-pdf', compact(
-            'paiement', 'inscription', 'eleve', 'suivi', 'comptable', 'anneeActive'
+            'paiement', 'inscription', 'eleve', 'suivi', 'comptable', 'anneeActive', 'parametres'
         ));
 
         $pdf->setPaper('A4', 'portrait');
-
         return $pdf->stream('recu-' . $paiement->reference . '.pdf');
     }
 
