@@ -51,7 +51,7 @@
 
     {{-- Vue tableau md+ --}}
     <div class="overflow-x-auto hidden md:block">
-        <table class="w-full text-left" style="min-width:700px;">
+        <table id="table-enseignants" class="w-full text-left" style="min-width:700px;">
             <thead>
                 <tr class="bg-slate-50">
                     <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Enseignant</th>

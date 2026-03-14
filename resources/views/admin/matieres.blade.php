@@ -51,7 +51,7 @@
 
         {{-- Vue tableau md+ --}}
         <div class="overflow-x-auto hidden md:block">
-            <table class="w-full text-left" style="min-width:550px;">
+            <table id="table-matieres" class="w-full text-left" style="min-width:550px;">
                 <thead>
                     <tr class="bg-slate-50">
                         <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Matière</th>
@@ -139,7 +139,7 @@
         @endif
     </div>
 
-    {{-- ═══════ MODAL CRÉER ═══════ --}}
+    {{--  MODAL CRÉER  --}}
     <div id="modal-create" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/50" onclick="closeModal('modal-create')"></div>
         <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md">
@@ -192,7 +192,7 @@
         </div>
     </div>
 
-    {{-- ═══════ MODALS DYNAMIQUES PAR MATIÈRE ═══════ --}}
+    {{--  MODALS DYNAMIQUES PAR MATIÈRE  --}}
     @php
         $sousGroupeLabels = [
             'maths_physique' => 'Maths & Physique',

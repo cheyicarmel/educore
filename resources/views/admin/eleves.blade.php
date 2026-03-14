@@ -105,7 +105,7 @@
 
         {{-- Vue tableau md+ --}}
         <div class="overflow-x-auto hidden md:block">
-            <table class="w-full text-left" style="min-width:750px;">
+            <table id="table-eleves" class="w-full text-left" style="min-width:750px;">
                 <thead>
                     <tr class="bg-slate-50">
                         <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Élève</th>

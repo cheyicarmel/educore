@@ -246,7 +246,7 @@
             </button>
             <div class="relative hidden md:block">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
-                <input class="pl-9 pr-4 py-2 bg-slate-50 border-none rounded-lg text-sm w-64 focus:ring-2 focus:ring-primary/20 focus:outline-none" placeholder="Rechercher..." type="text"/>
+                <input id="search-input" class="pl-9 pr-4 py-2 bg-slate-50 border-none rounded-lg text-sm w-64 focus:ring-2 focus:ring-primary/20 focus:outline-none" placeholder="Rechercher..." type="text"/>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -302,6 +302,44 @@
     }
     window.addEventListener('resize', handleResize);
     handleResize();
+</script>
+
+<script>
+    // Mapping route → id table + colonnes à chercher (index des td, 0-based)
+    const searchConfig = {
+        'admin/eleves':      { tableId: 'table-eleves',      cols: [0, 1, 2] },
+        'admin/enseignants': { tableId: 'table-enseignants', cols: [0, 1, 2, 3] },
+        'admin/classes':     { tableId: 'table-classes',     cols: [0, 1, 2, 3] },
+        'admin/matieres':    { tableId: 'table-matieres',    cols: [0, 1] },
+        'admin/series':      { tableId: 'table-series',      cols: [0, 1, 2] },
+    };
+
+    const currentPath = window.location.pathname.replace(/^\//, '');
+    const config = Object.entries(searchConfig).find(([key]) => currentPath.startsWith(key))?.[1];
+
+    const searchInput = document.getElementById('search-input');
+
+    if (config) {
+        searchInput.disabled = false;
+        searchInput.placeholder = 'Rechercher...';
+
+        searchInput.addEventListener('input', function () {
+            const q = this.value.trim().toLowerCase();
+            const table = document.getElementById(config.tableId);
+            if (!table) return;
+
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const text = config.cols
+                    .map(i => row.cells[i]?.innerText?.toLowerCase() ?? '')
+                    .join(' ');
+                row.style.display = text.includes(q) ? '' : 'none';
+            });
+        });
+    } else {
+        searchInput.disabled = true;
+        searchInput.placeholder = 'Recherche indisponible ici';
+    }
 </script>
 
 @yield('scripts')
