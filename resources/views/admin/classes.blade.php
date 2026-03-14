@@ -106,13 +106,14 @@
 
     {{-- Vue tableau md+ --}}
     <div class="overflow-x-auto hidden md:block">
-        <table id="table-classes" class="w-full text-left" style="min-width:600px;">
+        <table id="table-classes" class="w-full text-left" style="min-width:650px;">
             <thead>
                 <tr class="bg-slate-50">
                     <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Classe</th>
                     <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Niveau</th>
                     <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Cycle</th>
                     <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Série</th>
+                    <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Frais annuels</th>
                     <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider">Effectif</th>
                     <th class="px-6 py-3 text-[11px] font-bold text-navy-700 uppercase tracking-wider text-right">Actions</th>
                 </tr>
@@ -132,6 +133,13 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 text-sm text-navy-700">{{ $classe->serie->libelle ?? '—' }}</td>
+                    <td class="px-6 py-4 text-sm text-navy-700 font-semibold">
+                        @if($classe->frais_annuels > 0)
+                            {{ number_format($classe->frais_annuels, 0, ',', ' ') }} FCFA
+                        @else
+                            <span class="text-amber-500 font-bold">Non défini</span>
+                        @endif
+                    </td>
                     <td class="px-6 py-4 text-sm text-navy-700">{{ $classe->effectif }} élève{{ $classe->effectif > 1 ? 's' : '' }}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center justify-end gap-2">
@@ -170,6 +178,10 @@
                 <span class="flex items-center gap-1">
                     <span class="material-symbols-outlined text-sm">category</span>
                     {{ $classe->serie->libelle ?? '—' }}
+                </span>
+                <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">payments</span>
+                    {{ $classe->frais_annuels > 0 ? number_format($classe->frais_annuels, 0, ',', ' ') . ' FCFA' : 'Non défini' }}
                 </span>
                 <span class="flex items-center gap-1">
                     <span class="material-symbols-outlined text-sm">group</span>
@@ -230,9 +242,9 @@
                 @error('cycle')<p class="text-xs text-rose-500 mt-1">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label class="block text-sm font-semibold text-navy-900 mb-1.5">Série <span class="text-rose-500">*</span></label>
+                <label class="block text-sm font-semibold text-navy-900 mb-1.5">Série</label>
                 <select name="serie_id" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
-                    <option value="">-- Choisir une série --</option>
+                    <option value="">-- Aucune série --</option>
                     @foreach($series as $serie)
                     <option value="{{ $serie->id }}" {{ old('serie_id') == $serie->id ? 'selected' : '' }}>
                         {{ $serie->libelle }}
@@ -251,6 +263,12 @@
                     @endforeach
                 </select>
                 @error('annee_academique_id')<p class="text-xs text-rose-500 mt-1">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-navy-900 mb-1.5">Frais annuels <span class="text-rose-500">*</span></label>
+                <input type="number" name="frais_annuels" value="{{ old('frais_annuels', 0) }}" min="0" step="1"
+                    class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"/>
+                @error('frais_annuels')<p class="text-xs text-rose-500 mt-1">{{ $message }}</p>@enderror
             </div>
             <div class="flex items-center gap-3 pt-2">
                 <button type="button" onclick="closeModal('modal-create')" class="flex-1 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Annuler</button>
@@ -297,8 +315,9 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-semibold text-navy-900 mb-1.5">Série <span class="text-rose-500">*</span></label>
+                <label class="block text-sm font-semibold text-navy-900 mb-1.5">Série</label>
                 <select name="serie_id" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                    <option value="">-- Aucune série --</option>
                     @foreach($series as $serie)
                     <option value="{{ $serie->id }}" {{ $classe->serie_id == $serie->id ? 'selected' : '' }}>
                         {{ $serie->libelle }}
@@ -315,6 +334,11 @@
                     </option>
                     @endforeach
                 </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-navy-900 mb-1.5">Frais annuels <span class="text-rose-500">*</span></label>
+                <input type="number" name="frais_annuels" value="{{ $classe->frais_annuels }}" min="0" step="1"
+                    class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"/>
             </div>
             <div class="flex items-center gap-3 pt-2">
                 <button type="button" onclick="closeModal('modal-edit-{{ $classe->id }}')" class="flex-1 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Annuler</button>

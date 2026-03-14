@@ -82,6 +82,10 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::get('/admin/bulletins', [Admin\BulletinController::class, 'index'])->name('admin.bulletins.index');
     Route::post('/admin/bulletins/publier', [Admin\BulletinController::class, 'publier'])->name('admin.bulletins.publier');
     Route::post('/admin/bulletins/depublier', [Admin\BulletinController::class, 'depublier'])->name('admin.bulletins.depublier');
+
+    // Passage
+    Route::get('/admin/passage', [App\Http\Controllers\Admin\PassageController::class, 'index'])->name('admin.passage.index');
+    Route::post('/admin/passage/traiter', [App\Http\Controllers\Admin\PassageController::class, 'traiter'])->name('admin.passage.traiter');
 });
 
 

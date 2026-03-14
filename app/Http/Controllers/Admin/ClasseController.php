@@ -53,17 +53,18 @@ class ClasseController extends Controller
             'nom'                  => 'required|string|max:20',
             'niveau'               => 'required|string|max:20',
             'cycle'                => 'required|in:premier,second',
-            'serie_id'             => 'required|exists:series,id',
+            'serie_id'             => 'nullable|exists:series,id',
             'annee_academique_id'  => 'required|exists:annees_academiques,id',
+            'frais_annuels'        => 'required|numeric|min:0',
         ], [
             'nom.required'                 => 'Le nom de la classe est obligatoire.',
             'niveau.required'              => 'Le niveau est obligatoire.',
             'cycle.required'               => 'Le cycle est obligatoire.',
-            'serie_id.required'            => 'La série est obligatoire.',
             'annee_academique_id.required' => 'L\'année académique est obligatoire.',
+            'frais_annuels.required'       => 'Les frais annuels sont obligatoires.',
+            'frais_annuels.numeric'        => 'Les frais annuels doivent être un nombre.',
         ]);
 
-        // Vérifier unicité nom + année
         $existe = Classe::where('nom', $request->nom)
             ->where('annee_academique_id', $request->annee_academique_id)
             ->exists();
@@ -72,7 +73,7 @@ class ClasseController extends Controller
             return back()->withErrors(['nom' => 'Cette classe existe déjà pour cette année académique.'])->withInput();
         }
 
-        Classe::create($request->only('nom', 'niveau', 'cycle', 'serie_id', 'annee_academique_id'));
+        Classe::create($request->only('nom', 'niveau', 'cycle', 'serie_id', 'annee_academique_id', 'frais_annuels'));
 
         return redirect()->route('admin.classes.index')
             ->with('success', 'Classe créée avec succès.');
@@ -84,17 +85,18 @@ class ClasseController extends Controller
             'nom'                 => 'required|string|max:20',
             'niveau'              => 'required|string|max:20',
             'cycle'               => 'required|in:premier,second',
-            'serie_id'            => 'required|exists:series,id',
+            'serie_id'            => 'nullable|exists:series,id',
             'annee_academique_id' => 'required|exists:annees_academiques,id',
+            'frais_annuels'       => 'required|numeric|min:0',
         ], [
             'nom.required'                 => 'Le nom de la classe est obligatoire.',
             'niveau.required'              => 'Le niveau est obligatoire.',
             'cycle.required'               => 'Le cycle est obligatoire.',
-            'serie_id.required'            => 'La série est obligatoire.',
             'annee_academique_id.required' => 'L\'année académique est obligatoire.',
+            'frais_annuels.required'       => 'Les frais annuels sont obligatoires.',
+            'frais_annuels.numeric'        => 'Les frais annuels doivent être un nombre.',
         ]);
 
-        // Vérifier unicité nom + année en excluant la classe actuelle
         $existe = Classe::where('nom', $request->nom)
             ->where('annee_academique_id', $request->annee_academique_id)
             ->where('id', '!=', $classe->id)
@@ -104,7 +106,7 @@ class ClasseController extends Controller
             return back()->withErrors(['nom' => 'Cette classe existe déjà pour cette année académique.'])->withInput();
         }
 
-        $classe->update($request->only('nom', 'niveau', 'cycle', 'serie_id', 'annee_academique_id'));
+        $classe->update($request->only('nom', 'niveau', 'cycle', 'serie_id', 'annee_academique_id', 'frais_annuels'));
 
         return redirect()->route('admin.classes.index')
             ->with('success', 'Classe modifiée avec succès.');

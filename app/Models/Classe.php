@@ -15,6 +15,7 @@ class Classe extends Model
         'nom',
         'niveau',
         'cycle',
+        'frais_annuels',
         'bulletins_publies_s1',
         'bulletins_publies_s2', 
         'bulletins_publies_annuel',

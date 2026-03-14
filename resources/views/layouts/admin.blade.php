@@ -191,6 +191,12 @@
             <span class="lbl">Bulletins</span>
             <span class="tip">Bulletins</span>
         </a>
+        <a href="{{ route('admin.passage.index') }}"
+            class="nav-link {{ request()->routeIs('admin.passage.*') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
+            <span class="material-symbols-outlined shrink-0">upgrade</span>
+            <span class="lbl">Passage / Redoublement</span>
+            <span class="tip">Passage / Redoublement</span>
+        </a>
 
         @if(Auth::user()->role === 'superadmin')
         <div class="pt-3 mt-2 border-t border-slate-100">
