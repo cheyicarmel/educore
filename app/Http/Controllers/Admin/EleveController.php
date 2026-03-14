@@ -81,92 +81,88 @@ class EleveController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $anneeActive = AnneeAcademique::active()->first();
+{
+    $anneeActive = AnneeAcademique::active()->first();
 
-        if (!$anneeActive) {
-            return back()->with('error', 'Aucune année académique active. Impossible d\'inscrire un élève.');
-        }
+    if (!$anneeActive) {
+        return back()->with('error', 'Aucune année académique active. Impossible d\'inscrire un élève.');
+    }
 
-        $request->validate([
-            'nom'              => 'required|string|max:100',
-            'prenom'           => 'required|string|max:100',
-            'sexe'             => 'required|in:M,F',
-            'date_naissance'   => 'nullable|date',
-            'classe_id'        => 'required|exists:classes,id',
-            'frais_annuels'    => 'required|numeric|min:0',
-            'email_parent'     => 'required|email|max:150',
-            'telephone_parent' => 'nullable|string|max:20',
-        ], [
-            'nom.required'           => 'Le nom est obligatoire.',
-            'prenom.required'        => 'Le prénom est obligatoire.',
-            'sexe.required'          => 'Le sexe est obligatoire.',
-            'classe_id.required'     => 'La classe est obligatoire.',
-            'frais_annuels.required' => 'Les frais annuels sont obligatoires.',
-            'email_parent.required'  => 'L\'email du parent est obligatoire.',
+    $request->validate([
+        'nom'              => 'required|string|max:100',
+        'prenom'           => 'required|string|max:100',
+        'sexe'             => 'required|in:M,F',
+        'date_naissance'   => 'nullable|date',
+        'classe_id'        => 'required|exists:classes,id',
+        'email_parent'     => 'required|email|max:150',
+        'telephone_parent' => 'nullable|string|max:20',
+    ], [
+        'nom.required'       => 'Le nom est obligatoire.',
+        'prenom.required'    => 'Le prénom est obligatoire.',
+        'sexe.required'      => 'Le sexe est obligatoire.',
+        'classe_id.required' => 'La classe est obligatoire.',
+        'email_parent.required' => 'L\'email du parent est obligatoire.',
+    ]);
+
+    $classe       = Classe::findOrFail($request->classe_id);
+    $fraisAnnuels = $classe->frais_annuels;
+
+    $motDePasse      = Str::random(10);
+    $numeroMatricule = Eleve::genererMatricule();
+
+    DB::transaction(function () use ($request, $anneeActive, $motDePasse, $numeroMatricule, $fraisAnnuels) {
+        $user = User::create([
+            'nom'       => $request->nom,
+            'prenom'    => $request->prenom,
+            'email'     => $request->email_parent,
+            'password'  => Hash::make($motDePasse),
+            'role'      => 'eleve',
+            'est_actif' => true,
         ]);
 
-        $motDePasse      = Str::random(10);
-        $numeroMatricule = Eleve::genererMatricule();
+        $eleve = Eleve::create([
+            'user_id'          => $user->id,
+            'numero_matricule' => $numeroMatricule,
+            'date_naissance'   => $request->date_naissance,
+            'sexe'             => $request->sexe,
+            'email_parent'     => $request->email_parent,
+            'telephone_parent' => $request->telephone_parent,
+        ]);
 
-        DB::transaction(function () use ($request, $anneeActive, $motDePasse, $numeroMatricule) {
-            // Créer le compte utilisateur
-            $user = User::create([
-                'nom'       => $request->nom,
-                'prenom'    => $request->prenom,
-                'email'     => $request->email_parent,
-                'password'  => Hash::make($motDePasse),
-                'role'      => 'eleve',
-                'est_actif' => true,
-            ]);
+        $inscription = Inscription::create([
+            'eleve_id'            => $eleve->id,
+            'classe_id'           => $request->classe_id,
+            'annee_academique_id' => $anneeActive->id,
+            'statut'              => 'actif',
+            'frais_annuels'       => $fraisAnnuels,
+        ]);
 
-            // Créer le profil élève
-            $eleve = Eleve::create([
-                'user_id'          => $user->id,
-                'numero_matricule' => $numeroMatricule,
-                'date_naissance'   => $request->date_naissance,
-                'sexe'             => $request->sexe,
-                'email_parent'     => $request->email_parent,
-                'telephone_parent' => $request->telephone_parent,
-            ]);
+        SuiviFinancier::create([
+            'inscription_id' => $inscription->id,
+            'total_du'       => $fraisAnnuels,
+            'total_paye'     => 0,
+            'solde_restant'  => $fraisAnnuels,
+            'statut'         => 'en_retard',
+        ]);
 
-            // Créer l'inscription
-            $inscription = Inscription::create([
-                'eleve_id'            => $eleve->id,
-                'classe_id'           => $request->classe_id,
-                'annee_academique_id' => $anneeActive->id,
-                'statut'              => 'actif',
-                'frais_annuels'       => $request->frais_annuels,
-            ]);
+        Mail::raw(
+            "Bonjour,\n\n" .
+            "Le compte EduCore de votre enfant {$request->prenom} {$request->nom} a été créé.\n\n" .
+            "Matricule : {$numeroMatricule}\n" .
+            "Email de connexion : {$request->email_parent}\n" .
+            "Mot de passe : {$motDePasse}\n\n" .
+            "Veuillez vous connecter sur la plateforme pour suivre la scolarité de votre enfant.\n\n" .
+            "Cordialement,\nL'équipe EduCore",
+            function ($message) use ($request) {
+                $message->to($request->email_parent)
+                        ->subject('Compte EduCore — ' . $request->prenom . ' ' . $request->nom);
+            }
+        );
+    });
 
-            // Créer le suivi financier automatiquement
-            SuiviFinancier::create([
-                'inscription_id' => $inscription->id,
-                'total_du'       => $request->frais_annuels,
-                'total_paye'     => 0,
-                'solde_restant'  => $request->frais_annuels,
-                'statut'         => 'en_retard',
-            ]);
-
-            // Envoyer les identifiants par email au parent
-            Mail::raw(
-                "Bonjour,\n\n" .
-                "Le compte EduCore de votre enfant {$request->prenom} {$request->nom} a été créé.\n\n" .
-                "Matricule : {$numeroMatricule}\n" .
-                "Email de connexion : {$request->email_parent}\n" .
-                "Mot de passe : {$motDePasse}\n\n" .
-                "Veuillez vous connecter sur la plateforme pour suivre la scolarité de votre enfant.\n\n" .
-                "Cordialement,\nL'équipe EduCore",
-                function ($message) use ($request) {
-                    $message->to($request->email_parent)
-                            ->subject('Compte EduCore — ' . $request->prenom . ' ' . $request->nom);
-                }
-            );
-        });
-
-        return redirect()->route('admin.eleves.index')
-            ->with('success', 'Élève inscrit avec succès. Les identifiants ont été envoyés au parent.');
-    }
+    return redirect()->route('admin.eleves.index')
+        ->with('success', 'Élève inscrit avec succès. Les identifiants ont été envoyés au parent.');
+}
 
     public function update(Request $request, Eleve $eleve)
     {

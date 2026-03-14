@@ -286,7 +286,7 @@
                     <label class="block text-sm font-semibold text-navy-900 mb-1.5">Classe <span class="text-rose-500">*</span></label>
                     <select name="classe_id"
                         class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
-                        <option value="">-- Choisir une classe --</option>
+                        <option value="">Choisir une classe</option>
                         @foreach($classes as $classe)
                         <option value="{{ $classe->id }}" {{ old('classe_id') == $classe->id ? 'selected' : '' }}>
                             {{ $classe->nom }}
@@ -296,10 +296,10 @@
                     @error('classe_id')<p class="text-xs text-rose-500 mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-navy-900 mb-1.5">Frais annuels (FCFA) <span class="text-rose-500">*</span></label>
-                    <input type="number" name="frais_annuels" value="{{ old('frais_annuels') }}" placeholder="Ex: 150000" min="0"
-                        class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-navy-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"/>
-                    @error('frais_annuels')<p class="text-xs text-rose-500 mt-1">{{ $message }}</p>@enderror
+                    <label class="block text-sm font-semibold text-navy-900 mb-1.5">Frais annuels</label>
+                    <div id="frais-display" class="w-full px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-sm text-navy-700 font-semibold">
+                        Sélectionnez une classe
+                    </div>
                 </div>
                 <p class="text-xs font-bold text-navy-700 uppercase tracking-wider pt-2">Contact Parent</p>
                 <div>
@@ -456,32 +456,55 @@
 
 @section('scripts')
     <script>
-        function openModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.body.style.overflow = 'hidden';
-        }
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        if (id === 'modal-create') initFraisSelect();
+    }
 
-        function closeModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.body.style.overflow = '';
-        }
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('[id^="modal-"]').forEach(modal => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                    document.body.style.overflow = '';
-                });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('[id^="modal-"]').forEach(modal => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            });
+        }
+    });
+
+    @if($errors->any())
+        openModal('modal-create');
+    @endif
+
+    const fraisParClasse = {
+        @foreach($classes as $classe)
+        {{ $classe->id }}: {{ $classe->frais_annuels }},
+        @endforeach
+    };
+
+    let fraisInitialise = false;
+    function initFraisSelect() {
+        if (fraisInitialise) return;
+        fraisInitialise = true;
+const select = document.querySelector('#modal-create select[name="classe_id"]');        if (!select) return;
+        select.addEventListener('change', function () {
+            const frais = fraisParClasse[this.value];
+            const display = document.getElementById('frais-display');
+            if (frais) {
+                display.textContent = new Intl.NumberFormat('fr-FR').format(frais) + ' FCFA';
+            } else {
+                display.textContent = '— Sélectionnez une classe —';
             }
         });
-
-        @if($errors->any())
-            openModal('modal-create');
-        @endif
-    </script>
+    }
+</script>
 @endsection
