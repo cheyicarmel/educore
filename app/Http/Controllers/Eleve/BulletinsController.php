@@ -8,6 +8,7 @@ use App\Models\Bulletin;
 use App\Models\Inscription;
 use App\Models\MoyenneSemestre;
 use App\Models\MoyenneAnnuelle;
+use App\Models\SuiviFinancier;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,7 +22,7 @@ class BulletinsController extends Controller
 
         $inscription = Inscription::where('eleve_id', $eleve->id)
             ->where('annee_academique_id', $anneeActive?->id)
-            ->with('classe.serie')
+            ->with('classe.serie', 'suiviFinancier')
             ->first();
 
         $classe   = $inscription?->classe;
@@ -88,7 +89,9 @@ class BulletinsController extends Controller
             ]);
         }
 
-        return view('eleve.bulletins', compact('classe', 'anneeActive', 'bulletins'));
+        $soldeRestant = $inscription?->suiviFinancier?->solde_restant ?? 0;
+
+        return view('eleve.bulletins', compact('classe', 'anneeActive', 'bulletins', 'soldeRestant'));
     }
 
     public function download($id)
@@ -99,7 +102,13 @@ class BulletinsController extends Controller
 
         $inscription = Inscription::where('eleve_id', $eleve->id)
             ->where('annee_academique_id', $anneeActive?->id)
+            ->with('suiviFinancier')
             ->first();
+
+        // Bloquer si solde restant > 0
+        if ($inscription?->suiviFinancier && $inscription->suiviFinancier->solde_restant > 0) {
+            return back()->with('error', 'Vous ne pouvez pas télécharger votre bulletin tant que vous n\'avez pas soldé l\'intégralité de vos frais de scolarité.');
+        }
 
         // Vérifier que le bulletin appartient bien à cet élève
         $bulletin = Bulletin::where('id', $id)
@@ -107,13 +116,13 @@ class BulletinsController extends Controller
             ->firstOrFail();
 
         // Vérifier que le bulletin est publié
-        $classe   = $inscription->classe;
-        $publie   = match($bulletin->type) {
+        $classe = $inscription->classe;
+        $publie = match($bulletin->type) {
             'semestriel' => $bulletin->numero_semestre == 1
                 ? $classe->bulletins_publies_s1
                 : $classe->bulletins_publies_s2,
-            'annuel'     => $classe->bulletins_publies_annuel,
-            default      => false,
+            'annuel' => $classe->bulletins_publies_annuel,
+            default  => false,
         };
 
         if (!$publie) {
