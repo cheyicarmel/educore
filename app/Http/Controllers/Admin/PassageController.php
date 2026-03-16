@@ -26,7 +26,7 @@ class PassageController extends Controller
     public function index()
     {
         $anneeActive     = AnneeAcademique::active()->first();
-        $anneesSuivantes = AnneeAcademique::where('statut', 'inactive')
+        $anneesSuivantes = AnneeAcademique::whereNotIn('statut', ['active', 'terminee'])
             ->orderBy('created_at', 'desc')
             ->get();
 
