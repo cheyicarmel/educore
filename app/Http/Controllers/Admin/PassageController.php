@@ -14,13 +14,13 @@ use Illuminate\Support\Facades\DB;
 class PassageController extends Controller
 {
     const PROGRESSION = [
-        '6ème' => '5ème',
-        '5ème' => '4ème',
-        '4ème' => '3ème',
-        '3ème' => '2nde',
-        '2nde' => '1ère',
-        '1ère' => 'Tle',
-        'Tle'  => null,
+        '6eme'      => '5eme',
+        '5eme'      => '4eme',
+        '4eme'      => '3eme',
+        '3eme'      => '2nde',
+        '2nde'      => '1ere',
+        '1ere'      => 'terminale',
+        'terminale' => null,
     ];
 
     public function index()
@@ -35,10 +35,24 @@ class PassageController extends Controller
         $totalMoyennes     = MoyenneAnnuelle::whereHas('inscription', fn($q) =>
             $q->where('annee_academique_id', $anneeActive?->id)
         )->count();
-        $pret = $totalInscriptions > 0 && $totalMoyennes >= $totalInscriptions;
+
+        // Vérifier si tous les bulletins sont publiés
+        $totalClasses         = Classe::where('annee_academique_id', $anneeActive?->id)->count();
+        $classesBulletinsOk   = Classe::where('annee_academique_id', $anneeActive?->id)
+            ->where('bulletins_publies_s1', true)
+            ->where('bulletins_publies_s2', true)
+            ->where('bulletins_publies_annuel', true)
+            ->count();
+
+        $moyennesPrêtes  = $totalInscriptions > 0 && $totalMoyennes >= $totalInscriptions;
+        $bulletinsPublies = $totalClasses > 0 && $classesBulletinsOk >= $totalClasses;
+        $pret            = $moyennesPrêtes && $bulletinsPublies;
 
         return view('admin.passage.index', compact(
-            'anneeActive', 'anneesSuivantes', 'totalInscriptions', 'totalMoyennes', 'pret'
+            'anneeActive', 'anneesSuivantes',
+            'totalInscriptions', 'totalMoyennes',
+            'totalClasses', 'classesBulletinsOk',
+            'moyennesPrêtes', 'bulletinsPublies', 'pret'
         ));
     }
 
@@ -51,45 +65,71 @@ class PassageController extends Controller
         $anneeActive   = AnneeAcademique::active()->first();
         $anneeSuivante = AnneeAcademique::findOrFail($request->annee_suivante_id);
 
-        // Classes de la nouvelle année
+        // Vérifier que les bulletins sont tous publiés
+        $totalClasses       = Classe::where('annee_academique_id', $anneeActive->id)->count();
+        $classesBulletinsOk = Classe::where('annee_academique_id', $anneeActive->id)
+            ->where('bulletins_publies_s1', true)
+            ->where('bulletins_publies_s2', true)
+            ->where('bulletins_publies_annuel', true)
+            ->count();
+
+        if ($classesBulletinsOk < $totalClasses) {
+            return back()->with('error', 'Tous les bulletins doivent être publiés avant de lancer le passage.');
+        }
+
+        // Vérifier que les classes de la nouvelle année existent
         $classesSuivantes = Classe::where('annee_academique_id', $anneeSuivante->id)
             ->with('serie')
             ->get();
 
         if ($classesSuivantes->isEmpty()) {
-            return back()->with('error', 'Aucune classe n\'est définie pour l\'année suivante. Veuillez les créer d\'abord.');
+            return back()->with('error', 'Aucune classe définie pour l\'année suivante. Créez-les d\'abord.');
         }
 
         DB::transaction(function () use ($anneeActive, $anneeSuivante, $classesSuivantes) {
 
             $inscriptions = Inscription::where('annee_academique_id', $anneeActive->id)
-                ->with(['eleve', 'classe.serie', 'moyenneAnnuelle'])
+                ->with(['eleve', 'classe.serie', 'moyenneAnnuelle', 'suiviFinancier'])
                 ->get();
 
             foreach ($inscriptions as $inscription) {
                 $moyenneAnnuelle = $inscription->moyenneAnnuelle;
                 if (!$moyenneAnnuelle) continue;
 
+                // Éviter les doublons — si l'élève est déjà inscrit dans la nouvelle année, on skip
+                $dejaInscrit = Inscription::where('eleve_id', $inscription->eleve_id)
+                    ->where('annee_academique_id', $anneeSuivante->id)
+                    ->exists();
+                if ($dejaInscrit) continue;
+
                 $decision      = $moyenneAnnuelle->decision;
                 $classeActuelle = $inscription->classe;
-                $niveauBase    = $this->getNiveauBase($classeActuelle->niveau);
+                $niveauActuel  = $classeActuelle->niveau;
                 $serieActuelle = $classeActuelle->serie?->code;
 
                 if ($decision === 'passant') {
-                    $niveauSuivant = self::PROGRESSION[$niveauBase] ?? null;
+                    $niveauSuivant = self::PROGRESSION[$niveauActuel] ?? null;
 
                     // Terminale passant → diplômé, on ne réinscrit pas
                     if ($niveauSuivant === null) continue;
 
-                    $serieCalculee = $this->calculerSerie($inscription, $niveauBase, $serieActuelle);
+                    $serieCalculee = $this->calculerSerie($inscription, $niveauActuel, $serieActuelle);
                     $classeId      = $this->trouverClasseId($classesSuivantes, $niveauSuivant, $serieCalculee);
 
                 } else {
-                    // Doublant → même classe dans la nouvelle année
-                    $classeId = $this->trouverClasseId($classesSuivantes, $niveauBase, $serieActuelle);
+                    // Doublant → même niveau et même série dans la nouvelle année
+                    $classeId = $this->trouverClasseId($classesSuivantes, $niveauActuel, $serieActuelle);
                 }
 
                 if (!$classeId) continue;
+
+                // Frais de la nouvelle classe
+                $nouvelleClasse = $classesSuivantes->firstWhere('id', $classeId);
+                $fraisNouveaux  = $nouvelleClasse->frais_annuels;
+
+                // Report du solde restant de l'ancienne année
+                $soldeAncien = $inscription->suiviFinancier?->solde_restant ?? 0;
+                $totalDu     = $fraisNouveaux + $soldeAncien;
 
                 // Créer la nouvelle inscription
                 $nouvelleInscription = Inscription::create([
@@ -97,20 +137,20 @@ class PassageController extends Controller
                     'classe_id'           => $classeId,
                     'annee_academique_id' => $anneeSuivante->id,
                     'statut'              => 'actif',
-                    'frais_annuels'       => $inscription->frais_annuels,
+                    'frais_annuels'       => $fraisNouveaux,
                 ]);
 
-                // Créer le suivi financier vide
+                // Créer le suivi financier avec report du solde
                 SuiviFinancier::create([
                     'inscription_id' => $nouvelleInscription->id,
-                    'total_du'       => $inscription->frais_annuels,
+                    'total_du'       => $totalDu,
                     'total_paye'     => 0,
-                    'solde_restant'  => $inscription->frais_annuels,
+                    'solde_restant'  => $totalDu,
                     'statut'         => 'en_retard',
                 ]);
             }
 
-            // Changer statuts années
+            // Changer les statuts des années
             $anneeActive->update(['statut' => 'terminee']);
             $anneeSuivante->update(['statut' => 'active']);
         });
@@ -121,28 +161,27 @@ class PassageController extends Controller
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
-    private function getNiveauBase(string $niveau): string
+    private function calculerSerie(Inscription $inscription, string $niveauActuel, ?string $serieActuelle): ?string
     {
-        return trim(preg_replace('/\s+[A-Z]$/', '', $niveau));
-    }
-
-    private function calculerSerie(Inscription $inscription, string $niveauActuel, ?string $serieActuelle): string
-    {
-        if (in_array($niveauActuel, ['5ème', '4ème'])) {
+        // 5ème → 4ème et 4ème → 3ème : calcul L ou C
+        if (in_array($niveauActuel, ['5eme', '4eme'])) {
             return $this->calculerSerieLC($inscription);
         }
 
-        if ($niveauActuel === '3ème') {
+        // 3ème → 2nde
+        if ($niveauActuel === '3eme') {
             if ($serieActuelle === 'L') return 'A';
             return $this->calculerSerieSecondCycle($inscription);
         }
 
-        if (in_array($niveauActuel, ['2nde', '1ère'])) {
+        // 2nde → 1ère et 1ère → Tle
+        if (in_array($niveauActuel, ['2nde', '1ere'])) {
             if ($serieActuelle === 'A') return 'A';
             return $this->calculerSerieSecondCycle($inscription);
         }
 
-        return $serieActuelle ?? 'A';
+        // 6ème → 5ème : pas de série
+        return null;
     }
 
     private function calculerSerieLC(Inscription $inscription): string
@@ -174,14 +213,16 @@ class PassageController extends Controller
 
     private function trouverClasseId($classes, string $niveau, ?string $serie): ?int
     {
+        // Cherche d'abord une classe avec le bon niveau ET la bonne série
         $classe = $classes->first(function ($c) use ($niveau, $serie) {
-            if ($this->getNiveauBase($c->niveau) !== $niveau) return false;
+            if ($c->niveau !== $niveau) return false;
             if ($serie) return $c->serie?->code === $serie;
             return !$c->serie_id;
         });
 
+        // Fallback : première classe du niveau sans se soucier de la série
         if (!$classe) {
-            $classe = $classes->first(fn($c) => $this->getNiveauBase($c->niveau) === $niveau);
+            $classe = $classes->first(fn($c) => $c->niveau === $niveau);
         }
 
         return $classe?->id;

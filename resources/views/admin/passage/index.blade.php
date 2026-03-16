@@ -45,16 +45,34 @@
         </div>
 
         {{-- État des moyennes --}}
-        <div class="flex items-center gap-3 p-4 {{ $pret ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200' }} rounded-xl">
-            <span class="material-symbols-outlined {{ $pret ? 'text-emerald-600' : 'text-amber-600' }}">
-                {{ $pret ? 'check_circle' : 'warning' }}
+        <div class="flex items-center gap-3 p-4 {{ $moyennesPrêtes ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200' }} rounded-xl">
+            <span class="material-symbols-outlined {{ $moyennesPrêtes ? 'text-emerald-600' : 'text-amber-600' }}">
+                {{ $moyennesPrêtes ? 'check_circle' : 'warning' }}
             </span>
             <div>
-                <p class="text-sm font-semibold {{ $pret ? 'text-emerald-700' : 'text-amber-700' }}">
-                    {{ $pret ? 'Moyennes calculées — Passage possible' : 'Moyennes incomplètes' }}
+                <p class="text-sm font-semibold {{ $moyennesPrêtes ? 'text-emerald-700' : 'text-amber-700' }}">
+                    {{ $moyennesPrêtes ? 'Moyennes annuelles calculées' : 'Moyennes incomplètes' }}
                 </p>
-                <p class="text-xs {{ $pret ? 'text-emerald-600' : 'text-amber-600' }}">
+                <p class="text-xs {{ $moyennesPrêtes ? 'text-emerald-600' : 'text-amber-600' }}">
                     {{ $totalMoyennes }} / {{ $totalInscriptions }} élèves ont une moyenne annuelle calculée
+                </p>
+            </div>
+        </div>
+
+        {{-- État des bulletins --}}
+        <div class="flex items-center gap-3 p-4 {{ $bulletinsPublies ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200' }} rounded-xl">
+            <span class="material-symbols-outlined {{ $bulletinsPublies ? 'text-emerald-600' : 'text-amber-600' }}">
+                {{ $bulletinsPublies ? 'check_circle' : 'warning' }}
+            </span>
+            <div>
+                <p class="text-sm font-semibold {{ $bulletinsPublies ? 'text-emerald-700' : 'text-amber-700' }}">
+                    {{ $bulletinsPublies ? 'Tous les bulletins publiés' : 'Bulletins non publiés' }}
+                </p>
+                <p class="text-xs {{ $bulletinsPublies ? 'text-emerald-600' : 'text-amber-600' }}">
+                    {{ $classesBulletinsOk }} / {{ $totalClasses }} classes ont tous leurs bulletins publiés
+                    @if(!$bulletinsPublies)
+                    — <a href="{{ route('admin.bulletins.index') }}" class="underline font-bold">Publier les bulletins</a>
+                    @endif
                 </p>
             </div>
         </div>
@@ -82,10 +100,8 @@
         </div>
         @else
         <form method="POST" action="{{ route('admin.passage.traiter') }}"
-              x-data="{ confirme: false }"
               onsubmit="return confirm('Êtes-vous sûr de vouloir lancer le passage ? Cette action est irréversible.')">
             @csrf
-
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-navy-700 mb-2 uppercase tracking-wide">Année suivante</label>
@@ -107,6 +123,7 @@
                     <p>• Les élèves doublants seront réinscrits dans la même classe.</p>
                     <p>• Les élèves de Terminale passants seront marqués diplômés.</p>
                     <p>• L'année en cours passera en statut "terminée".</p>
+                    <p>• Le solde impayé de chaque élève sera reporté sur la nouvelle année.</p>
                     <p>• Les corrections de série peuvent être faites manuellement après le passage.</p>
                 </div>
 
