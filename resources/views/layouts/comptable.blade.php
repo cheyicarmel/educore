@@ -111,7 +111,7 @@
             <span class="lbl">Enregistrer Paiement</span>
             <span class="tip">Enregistrer Paiement</span>
         </a>
-        <a href="{{ route('comptable.paiements.index') }}"
+        <a href="{{ route('comptable.historique') }}"
             class="nav-link {{ request()->routeIs('comptable.paiements.index') ? 'active' : 'text-navy-700 hover:bg-slate-50' }} flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors">
             <span class="material-symbols-outlined shrink-0">receipt_long</span>
             <span class="lbl">Historique Paiements</span>

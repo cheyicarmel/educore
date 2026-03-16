@@ -154,7 +154,7 @@ Route::middleware(['auth', 'role:comptable'])->group(function () {
 
 
     // Historique des paiements
-    Route::get('/comptable/historique', [App\Http\Controllers\Comptable\PaiementController::class, 'index'])->name('comptable.paiements.index');
+    Route::get('/comptable/historique', [App\Http\Controllers\Comptable\PaiementController::class, 'index'])->name('comptable.historique');
 
     // Documents financiers
     Route::get('/comptable/documents', [Comptable\DocumentController::class, 'index'])->name('comptable.documents');

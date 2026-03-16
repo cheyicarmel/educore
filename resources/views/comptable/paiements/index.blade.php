@@ -43,7 +43,7 @@
 
     {{-- Filtres --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-5">
-        <form method="GET" action="{{ route('comptable.paiements.index') }}">
+        <form method="GET" action="{{ route('comptable.historique') }}">
             <div class="flex flex-col sm:flex-row items-end gap-3">
                 <div class="flex-1">
                     <label class="block text-xs font-bold text-navy-700 uppercase tracking-wider mb-1.5">Rechercher</label>
@@ -73,7 +73,7 @@
                         Filtrer
                     </button>
                     @if(request()->hasAny(['search', 'classe']))
-                    <a href="{{ route('comptable.paiements.index') }}"
+                    <a href="{{ route('comptable.historique') }}"
                         class="inline-flex items-center justify-center w-10 h-10 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors" title="Réinitialiser">
                         <span class="material-symbols-outlined text-base">close</span>
                     </a>

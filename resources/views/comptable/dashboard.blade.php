@@ -245,7 +245,7 @@
         <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="p-4 md:p-5 border-b border-slate-200 flex items-center justify-between">
                 <h2 class="text-base font-bold text-navy-900">Derniers Paiements</h2>
-                <a href="{{ route('comptable.paiements.index') }}" class="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                <a href="{{ route('comptable.historique') }}" class="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
                     Voir tout <span class="material-symbols-outlined text-sm">arrow_forward</span>
                 </a>
             </div>
