@@ -11,16 +11,39 @@
             <h1 class="text-2xl md:text-3xl font-extrabold text-navy-900 tracking-tight">Mes Notes</h1>
             <p class="text-sm text-navy-700 mt-1">
                 <span class="font-semibold text-navy-900">{{ $classe?->nom ?? '—' }}</span>
-                · Année <span class="font-semibold">{{ $anneeActive?->libelle }}</span>
+                · Année <span class="font-semibold">{{ $anneeConsultee?->libelle }}</span>
+                @if($estAnneeTerminee)
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-full uppercase ml-1">Terminée</span>
+                @endif
             </p>
         </div>
-        <form method="GET" action="{{ route('eleve.notes') }}">
-            <select name="semestre" onchange="this.form.submit()"
-                class="px-7 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
-                <option value="1" {{ $semestre == 1 ? 'selected' : '' }}>Semestre 1</option>
-                <option value="2" {{ $semestre == 2 ? 'selected' : '' }}>Semestre 2</option>
-            </select>
-        </form>
+        <div class="flex items-center gap-2">
+            {{-- Sélecteur d'année --}}
+            @if($annees->count() > 1)
+                <form method="GET" action="{{ route('eleve.notes') }}">
+                    <input type="hidden" name="semestre" value="{{ $semestre }}"/>
+                    <select name="annee_id" onchange="this.form.submit()"
+                        class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        @foreach($annees as $annee)
+                            <option value="{{ $annee->id }}" {{ $anneeConsultee?->id == $annee->id ? 'selected' : '' }}>
+                                {{ $annee->libelle }}{{ $annee->statut === 'active' ? ' (Active)' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+            @endif
+            {{-- Sélecteur semestre --}}
+            <form method="GET" action="{{ route('eleve.notes') }}">
+                @if($request->annee_id ?? false)
+                    <input type="hidden" name="annee_id" value="{{ $anneeConsultee->id }}"/>
+                @endif
+                <select name="semestre" onchange="this.form.submit()"
+                    class="px-7 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                    <option value="1" {{ $semestre == 1 ? 'selected' : '' }}>Semestre 1</option>
+                    <option value="2" {{ $semestre == 2 ? 'selected' : '' }}>Semestre 2</option>
+                </select>
+            </form>
+        </div>
     </div>
 
     {{-- KPIs --}}

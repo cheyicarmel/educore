@@ -17,21 +17,33 @@ class NotesController extends Controller
     public function index(Request $request)
     {
         $user        = Auth::user();
-        $anneeActive = AnneeAcademique::active()->first();
         $eleve       = $user->eleve;
+        $anneeActive = AnneeAcademique::active()->first();
         $semestre    = (int) $request->input('semestre', 1);
 
+        // Toutes les années où l'élève a une inscription (pour le sélecteur)
+        $annees = AnneeAcademique::whereIn('id',
+            Inscription::where('eleve_id', $eleve->id)->pluck('annee_academique_id')
+        )->orderBy('created_at', 'desc')->get();
+
+        // Année consultée — paramètre URL ou année active par défaut
+        $anneeConsultee = $request->annee_id
+            ? AnneeAcademique::findOrFail($request->annee_id)
+            : $anneeActive;
+
+        $estAnneeTerminee = $anneeConsultee?->statut === 'terminee';
+
         $inscription = Inscription::where('eleve_id', $eleve->id)
-            ->where('annee_academique_id', $anneeActive?->id)
+            ->where('annee_academique_id', $anneeConsultee?->id)
             ->with('classe.serie')
             ->first();
 
         $classe = $inscription?->classe;
 
-        // Toutes les attributions de la classe = toutes les matières
+        // Attributions de la classe pour l'année consultée
         $attributions = $classe
             ? Attribution::where('classe_id', $classe->id)
-                ->where('annee_academique_id', $anneeActive?->id)
+                ->where('annee_academique_id', $anneeConsultee?->id)
                 ->with(['matiere', 'enseignant.user'])
                 ->get()
             : collect();
@@ -52,7 +64,6 @@ class NotesController extends Controller
                 ->keyBy('matiere_id')
             : collect();
 
-        // Construire le tableau par matière
         $types = ['interrogation1', 'interrogation2', 'interrogation3', 'devoir1', 'devoir2'];
 
         $matieresAvecNotes = $attributions->map(function ($attr) use ($notes, $moyennes, $types) {
@@ -66,7 +77,6 @@ class NotesController extends Controller
                     : null;
             }
 
-            // Calcul en temps réel si pas encore validé en base
             $moy = $moyennes[$attr->matiere_id] ?? null;
 
             $moyInterro = null;
@@ -76,7 +86,6 @@ class NotesController extends Controller
                 $moyInterro = (float) $moy->moyenne_interrogations;
                 $moyGen     = (float) $moy->moyenne_generale;
             } else {
-                // Calcul à la volée si les notes sont là
                 $i1 = $valeursParType['interrogation1'];
                 $i2 = $valeursParType['interrogation2'];
                 $i3 = $valeursParType['interrogation3'];
@@ -103,12 +112,11 @@ class NotesController extends Controller
             ];
         });
 
-        // KPIs
-        $totalMatieres   = $attributions->count();
+        $totalMatieres     = $attributions->count();
         $matieresCompletes = $matieresAvecNotes->filter(fn($m) => $m['complet'])->count();
-        $notesRecues     = $notes->flatten()->count();
-        $notesAttendues  = $totalMatieres * 5;
-        $moyenneSemestre = $inscription
+        $notesRecues       = $notes->flatten()->count();
+        $notesAttendues    = $totalMatieres * 5;
+        $moyenneSemestre   = $inscription
             ? MoyenneSemestre::where('inscription_id', $inscription->id)
                 ->where('numero_semestre', $semestre)
                 ->first()
@@ -116,9 +124,10 @@ class NotesController extends Controller
         $moyenneGenerale = $moyenneSemestre ? round((float) $moyenneSemestre->valeur, 2) : null;
 
         return view('eleve.notes', compact(
-            'classe', 'anneeActive', 'semestre',
+            'classe', 'anneeConsultee', 'anneeActive', 'semestre',
             'matieresAvecNotes', 'totalMatieres', 'matieresCompletes',
-            'notesRecues', 'notesAttendues', 'moyenneGenerale'
+            'notesRecues', 'notesAttendues', 'moyenneGenerale',
+            'annees', 'estAnneeTerminee'
         ));
     }
 }
