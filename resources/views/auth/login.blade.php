@@ -9,6 +9,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%232b6cee'/><text x='50%' y='50%' dominant-baseline='central' text-anchor='middle' font-size='16' fill='white'>🎓</text></svg>"/>
         <script id="tailwind-config">
             tailwind.config = {
                 darkMode: "class",
@@ -179,6 +180,36 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="mt-6">
+    <button onclick="toggleDemo()" 
+        class="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 transition-colors">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Comptes de démonstration</span>
+        <span class="material-symbols-outlined text-slate-400 text-base transition-transform" id="demo-chevron">expand_more</span>
+    </button>
+    
+    <div id="demo-panel" class="hidden mt-2 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2">
+        @foreach([
+            ['Super Admin', 'admin@educore.com', 'Admin@1234'],
+            ['Admin', 'shw.educore@gmail.com', 'cGXgifOcGc'],
+            ['Enseignant', 'k.educore@gmail.com', 'AJF3Go25M2'],
+            ['Élève', 'marthe.agbeko708@parent-test.com', 'password123'],
+            ['Comptable', 'matt.c@educore.com', 'SSw0OSqzgR'],
+        ] as [$role, $email, $password])
+        <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-bold text-slate-600 dark:text-slate-400 w-20 shrink-0">{{ $role }}</span>
+            <button onclick="fillLogin('{{ $email }}', '{{ $password }}')"
+                class="flex-1 text-left text-xs text-slate-400 hover:text-primary transition-colors truncate">
+                {{ $email }}
+            </button>
+            <button onclick="fillLogin('{{ $email }}', '{{ $password }}')"
+                class="shrink-0 px-2.5 py-1 bg-primary text-white text-xs rounded-lg font-bold hover:bg-primary/90 transition-colors">
+                Utiliser
+            </button>
+        </div>
+        @endforeach
+    </div>
+</div>
                 </div>
             </div>
         </div>
@@ -193,6 +224,19 @@
                 passwordInput.type = isPassword ? 'text' : 'password';
                 toggleIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
             });
+
+            function toggleDemo() {
+                const panel = document.getElementById('demo-panel');
+                const chevron = document.getElementById('demo-chevron');
+                const isHidden = panel.classList.contains('hidden');
+                panel.classList.toggle('hidden', !isHidden);
+                chevron.style.transform = isHidden ? 'rotate(180deg)' : '';
+            }
+
+            function fillLogin(email, password) {
+                document.getElementById('email').value = email;
+                document.getElementById('password').value = password;
+            }
         </script>
     </body>
 </html>
