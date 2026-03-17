@@ -34,5 +34,9 @@ class AppServiceProvider extends ServiceProvider
             $anneeActive = AnneeAcademique::active()->first();
             $view->with('anneeActiveLayout', $anneeActive);
         });
+
+        if (config('app.env') === 'production') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }  
     }
 }
